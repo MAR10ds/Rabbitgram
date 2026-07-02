@@ -673,3 +673,12 @@ ul.chatlist {
     margin-inline-start: .125rem;
   }
 }
+
+// RabbitGram: compact chat list density — hides the last-message preview line
+// so each row shrinks to fit more chats on screen. Toggled via the
+// 'rabbitgram-compact-chatlist' class on <html> (see stores/appSettings.ts).
+// Deliberately CSS-only (no avatar/padding resize) so it can't desync from
+// the dialog list's own row-height bookkeeping.
+.rabbitgram-compact-chatlist .dialog-subtitle {
+  display: none;
+}

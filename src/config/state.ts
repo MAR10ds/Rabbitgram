@@ -186,6 +186,14 @@ export type StateSettings = {
   // RabbitGram: don't broadcast this client's online presence to the
   // server, so this account always appears offline/last-seen to others.
   hideOnlineStatus: boolean,
+  // RabbitGram: don't tell the server we've read a chat's messages, so the
+  // peer never sees the "read" tick / seen status for this client, while our
+  // own local unread badges still clear normally. See appMessagesManager's
+  // readHistory / readMessages.
+  hideReadStatus: boolean,
+  // RabbitGram: compact chat list — hides the last-message preview line to
+  // fit more chats on screen. Pure CSS, wired in stores/appSettings.ts.
+  compactChatList: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -562,7 +570,9 @@ export const SETTINGS_INIT: StateSettings = {
   keepDeletedMessages: true,
   keepEditedMessages: true,
   hideTypingStatus: false,
-  hideOnlineStatus: false
+  hideOnlineStatus: false,
+  hideReadStatus: false,
+  compactChatList: false
 };
 
 export const STATE_INIT: State = {

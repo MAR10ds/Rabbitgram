@@ -586,6 +586,10 @@ export class AppMessagesManager extends AppManager {
   // RabbitGram: local, per-peer-per-message log of pre-edit snapshots (see
   // saveEditedMessageSnapshot / getMessageEditHistory).
   private editedMessagesStorage: AppStorage<Record<PeerId, Record<number, EditedMessageRecord[]>>, AccountDatabase>;
+  // RabbitGram: mirrors settings.hideReadStatus, kept in sync via the
+  // 'settings_updated' event so readHistory/readMessages (hot, synchronous
+  // paths) don't need to await appStateManager.getState() on every call.
+  private hideReadStatusEnabled = false;
 
   private maxSeenId = 0;
 
@@ -656,6 +660,13 @@ export class AppMessagesManager extends AppManager {
   protected after() {
     this.deletedMessagesStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'deletedMessages');
     this.editedMessagesStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'editedMessages');
+
+    this.appStateManager.getState().then((state) => {
+      this.hideReadStatusEnabled = !!state.settings?.hideReadStatus;
+    });
+    this.rootScope.addEventListener('settings_updated', ({settings}) => {
+      this.hideReadStatusEnabled = !!settings?.hideReadStatus;
+    });
 
     this.clear(true);
 
@@ -6380,7 +6391,10 @@ export class AppMessagesManager extends AppManager {
     // user can scroll into messages whose mid <= a previously-read maxId
     // (e.g. messages loaded later, or scrolling up after a fast jump to bottom).
     // Without this, the unread counter "freezes" mid-scroll on high-volume chats.
-    const skipServerCall = historyStorage.triedToReadMaxId >= maxId || !!historyStorage.readPromise;
+    // RabbitGram: hideReadStatus forces this branch too — every processLocalUpdate
+    // call below still runs (our own unread badges clear normally), only the
+    // apiManager.invokeApi call that would tell the SERVER stays skipped.
+    const skipServerCall = this.hideReadStatusEnabled || historyStorage.triedToReadMaxId >= maxId || !!historyStorage.readPromise;
 
     let apiPromise: Promise<any>;
     if(monoforumThreadId) {
@@ -6764,7 +6778,10 @@ export class AppMessagesManager extends AppManager {
         messages: msgIds
       };
 
-      promise = this.apiManager.invokeApi('channels.readMessageContents', {
+      // RabbitGram: hideReadStatus — skip telling the server this media was
+      // viewed (e.g. voice-note "played" tick). The local update below still
+      // runs, so our own UI clears the unread state normally.
+      promise = this.hideReadStatusEnabled ? Promise.resolve() : this.apiManager.invokeApi('channels.readMessageContents', {
         channel: this.appChatsManager.getChannelInput(channelId),
         id: msgIds
       });
@@ -6776,7 +6793,7 @@ export class AppMessagesManager extends AppManager {
         pts_count: undefined
       };
 
-      promise = this.apiManager.invokeApi('messages.readMessageContents', {
+      promise = this.hideReadStatusEnabled ? Promise.resolve() : this.apiManager.invokeApi('messages.readMessageContents', {
         id: msgIds
       }).then((affectedMessages) => {
         (update as Update.updateReadMessagesContents).pts = affectedMessages.pts;

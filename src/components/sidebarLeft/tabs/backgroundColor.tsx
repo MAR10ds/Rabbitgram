@@ -24,7 +24,12 @@ const COLORS = [
   '#7A7072',
   '#FDD7AF',
   '#FDB76E',
-  '#DD8851'
+  '#DD8851',
+  // RabbitGram: bundled color pack — soft pink, lilac, mint, carrot.
+  '#FFC9E8',
+  '#D6B3FF',
+  '#B8F0D6',
+  '#FFB380'
 ];
 
 const BackgroundColor = () => {
