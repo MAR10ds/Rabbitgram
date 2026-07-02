@@ -4897,6 +4897,10 @@ const lang = {
   },
   'RabbitGram.ExportHistory.Failed': 'Couldn’t export this chat — try again in a moment.',
 
+  // RabbitGram: local-only "snooze a chat" (see lib/rabbitgram/snoozedDialogs.ts)
+  'RabbitGram.SnoozeChat.MenuButton': 'Snooze for 8 Hours',
+  'RabbitGram.SnoozeChat.Toast': '😴 Chat snoozed for 8 hours — it’ll come back on its own.',
+
   // RabbitGram: dedicated top-level settings tab for all the app's own
   // features, so they're not buried in the stock Privacy & Security screen
   'RabbitGram.Settings.MenuTitle': 'RabbitGram',

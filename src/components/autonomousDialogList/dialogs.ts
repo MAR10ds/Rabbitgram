@@ -19,6 +19,7 @@ import {AppDialogsManager, DialogDom} from '@lib/appDialogsManager';
 import rootScope from '@lib/rootScope';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import {runWithHotReloadGuard} from '@lib/solidjs/runWithHotReloadGuard';
+import {isSnoozed} from '@lib/rabbitgram/snoozedDialogs';
 
 
 type ConstructorArgs = BaseConstructorArgs & {
@@ -400,6 +401,11 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
 
   protected canUpdateDialog(dialog: Dialog): boolean {
     if(dialog.migratedTo !== undefined || !this.testDialogForFilter(dialog)) return false;
+    // RabbitGram: keep a snoozed chat out of the list even while it keeps
+    // receiving updates (new messages, edits, etc.) during the snooze —
+    // the whole point is it stays hidden, not just at the moment it was
+    // snoozed. See lib/rabbitgram/snoozedDialogs.ts.
+    if(isSnoozed(dialog.peerId)) return false;
     return super.canUpdateDialog(dialog);
   }
 

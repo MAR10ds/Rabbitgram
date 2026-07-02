@@ -26,6 +26,7 @@ import memoizeAsyncWithTTL from '@helpers/memoizeAsyncWithTTL';
 import {MonoforumDialog} from '@lib/storages/monoforumDialogs';
 import {openRemoveFeePopup} from '@components/chat/removeFee';
 import apiManagerProxy from '@lib/apiManagerProxy';
+import {snooze, SNOOZE_DURATION_MS} from '@lib/rabbitgram/snoozedDialogs';
 
 
 export default class DialogsContextMenu {
@@ -214,6 +215,11 @@ export default class DialogsContextMenu {
       text: 'Unarchive',
       onClick: this.onArchiveClick,
       verify: () => !this.threadId && !this.monoforumParentPeerId && (this.dialog as Dialog).folder_id === FOLDER_ID_ARCHIVE && this.peerId !== rootScope.myId
+    }, {
+      icon: 'mute',
+      text: 'RabbitGram.SnoozeChat.MenuButton',
+      onClick: this.onSnoozeClick,
+      verify: () => !this.threadId && !this.monoforumParentPeerId && this.peerId !== rootScope.myId
     }, CAN_HIDE_TOPIC ? {
       icon: 'hide',
       text: 'Hide',
@@ -313,6 +319,12 @@ export default class DialogsContextMenu {
     if(dialog) {
       this.managers.appMessagesManager.editPeerFolders([dialog.peerId], +!dialog.folder_id as REAL_FOLDER_ID);
     }
+  };
+
+  // RabbitGram: local-only snooze, no server call — see lib/rabbitgram/snoozedDialogs.ts.
+  private onSnoozeClick = async() => {
+    await snooze(this.managers, this.peerId, SNOOZE_DURATION_MS);
+    toastNew({langPackKey: 'RabbitGram.SnoozeChat.Toast'});
   };
 
   private onHideTopicClick = () => {
