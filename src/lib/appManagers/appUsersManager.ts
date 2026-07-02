@@ -1140,7 +1140,15 @@ export class AppUsersManager extends AppManager {
     }
   }
 
-  public updateMyOnlineStatus(offline: boolean) {
+  public async updateMyOnlineStatus(offline: boolean) {
+    // RabbitGram: when the user wants to always look offline, override
+    // whatever the real idle/activity state computed — the server (and
+    // everyone else) never learns we're actually online.
+    const state = await this.appStateManager.getState();
+    if(state.settings?.hideOnlineStatus) {
+      offline = true;
+    }
+
     this.setUserStatus(this.getSelf().id, offline);
     return this.apiManager.invokeApiSingle('account.updateStatus', {offline});
   }

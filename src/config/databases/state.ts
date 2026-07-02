@@ -2,7 +2,7 @@ import type {Database} from '.';
 import {ActiveAccountNumber} from '@lib/accounts/types';
 import {MOUNT_CLASS_TO} from '@config/debug';
 
-export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp'>;
+export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages'>;
 export type CommonDatabase = Database<'session' | 'localStorage'>;
 
 export const getOldDatabaseState = (): AccountDatabase => ({
@@ -46,9 +46,9 @@ export const getCommonDatabaseState = (): CommonDatabase => ({
 
 export const getDatabaseState = (
   accountNumber: ActiveAccountNumber
-): Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp'> => ({
+): Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages'> => ({
   name: `tweb-account-${accountNumber}`,
-  version: 9,
+  version: 11,
   stores: [
     {
       name: 'session',
@@ -77,6 +77,18 @@ export const getDatabaseState = (
     {
       name: 'webapp',
       encryptedName: 'webapp__encrypted'
+    },
+    {
+      // RabbitGram: local snapshots of messages the server told us were
+      // deleted, kept for the "Deleted messages" viewer. See appMessagesManager.
+      name: 'deletedMessages',
+      encryptedName: 'deletedMessages__encrypted'
+    },
+    {
+      // RabbitGram: previous versions of edited messages, kept for the
+      // per-message "Edit History" viewer. See appMessagesManager.
+      name: 'editedMessages',
+      encryptedName: 'editedMessages__encrypted'
     }
   ]
 });

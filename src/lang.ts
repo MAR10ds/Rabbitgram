@@ -4846,7 +4846,31 @@ const lang = {
   'AiEditor.ViewStyle.DeleteStyle': 'Delete Style',
   'AiEditor.ViewStyle.MaxSavedTones': 'You have reached the maximum number of custom styles.',
 
-  'Apply': 'Apply'
+  'Apply': 'Apply',
+
+  // RabbitGram: local recovery of server-deleted messages (see appMessagesManager.getDeletedMessages)
+  'RabbitGram.DeletedMessages.MenuButton': 'Deleted Messages',
+  'RabbitGram.DeletedMessages.Title': 'Deleted Messages',
+  'RabbitGram.DeletedMessages.Empty': 'No deleted messages saved for this chat yet.',
+  'RabbitGram.DeletedMessages.NonTextMessage': 'Non-text message',
+  'RabbitGram.DeletedMessages.ClearAll': 'Clear All',
+  'RabbitGram.Settings.KeepDeletedMessages': 'Keep Deleted Messages',
+  'RabbitGram.Settings.KeepDeletedMessagesSubtitle': 'Save a local copy of a message before it disappears after deletion, so you can view it later from the chat menu.',
+
+  // RabbitGram: per-message edit history (see appMessagesManager.getMessageEditHistory)
+  'RabbitGram.EditHistory.MenuButton': 'Edit History',
+  'RabbitGram.EditHistory.Title': 'Edit History',
+  'RabbitGram.EditHistory.Empty': 'No previous versions saved for this message.',
+  'RabbitGram.EditHistory.Current': 'Current version',
+  'RabbitGram.EditHistory.NonTextMessage': 'Non-text message',
+  'RabbitGram.Settings.KeepEditedMessages': 'Keep Edit History',
+  'RabbitGram.Settings.KeepEditedMessagesSubtitle': 'Save a local copy of a message’s previous text before each edit, viewable from that message’s context menu.',
+
+  // RabbitGram: outgoing status privacy toggles
+  'RabbitGram.Settings.HideTypingStatus': 'Hide Typing Status',
+  'RabbitGram.Settings.HideTypingStatusSubtitle': 'Stop sending “typing…” notifications to other people.',
+  'RabbitGram.Settings.HideOnlineStatus': 'Hide Online Status',
+  'RabbitGram.Settings.HideOnlineStatusSubtitle': 'Always appear offline to other people, regardless of your Last Seen privacy setting.'
 };
 
 export default lang;
