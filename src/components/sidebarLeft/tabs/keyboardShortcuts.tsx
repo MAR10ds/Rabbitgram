@@ -189,6 +189,11 @@ const NavigationSection = () => (
       action="KeyboardShortcuts.Action.ClosePopup"
       keys={<KeyCombo keys={['esc']} />}
     />
+    <ShortcutRow
+      action="RabbitGram.KeyboardShortcuts.SwitchAccount"
+      hint="RabbitGram.KeyboardShortcuts.SwitchAccountHint"
+      keys={<KeyAlternatives combos={[['alt', '1'], ['alt', '2'], ['alt', '3'], ['alt', '4']]} />}
+    />
   </Section>
 );
 

@@ -439,6 +439,20 @@ export class AppSidebarLeft extends SidebarSlider {
         peerId: appImManager.myId
       });
     });
+
+    // RabbitGram: quick account switching. Deliberately Alt+N, not Ctrl+N —
+    // Chrome/Edge/Firefox reserve Ctrl+1..8 for tab switching at the browser
+    // chrome level and ignore preventDefault() for it, so a Ctrl+N handler
+    // here would silently never fire in a normal browser tab.
+    AccountController.getTotalAccounts().then((totalAccounts) => {
+      for(let i = 1; i <= totalAccounts; ++i) {
+        const accountNumber = i as ActiveAccountNumber;
+        addShortcutListener([`alt+${i}`], () => {
+          if(appNavigationController.findItemByType('popup') || accountNumber === getCurrentAccount()) return;
+          changeAccount(accountNumber, false, true);
+        });
+      }
+    });
   }
 
   /**

@@ -4877,6 +4877,13 @@ const lang = {
   'RabbitGram.Settings.CompactChatListSubtitle': 'Hide the message preview line in the chat list to fit more chats on screen.',
   'RabbitGram.Settings.AppearanceSectionTitle': 'Appearance',
 
+  // RabbitGram: quick account-switch shortcut, listed in Keyboard Shortcuts
+  'RabbitGram.KeyboardShortcuts.SwitchAccount': 'Switch to Account 1-4',
+  'RabbitGram.KeyboardShortcuts.SwitchAccountHint': 'Jumps straight to that account if it’s logged in — reloads the app.',
+
+  // RabbitGram: easter egg (tap the bunny logo 5x in Settings > RabbitGram)
+  'RabbitGram.EasterEgg.Toast': '🥕 You found the secret burrow!',
+
   // RabbitGram: dedicated top-level settings tab for all the app's own
   // features, so they're not buried in the stock Privacy & Security screen
   'RabbitGram.Settings.MenuTitle': 'RabbitGram',
