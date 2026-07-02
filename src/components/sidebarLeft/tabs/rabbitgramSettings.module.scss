@@ -1,0 +1,32 @@
+.easterEgg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  padding: 1.5rem 1rem 1rem;
+  text-align: center;
+  user-select: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.logo {
+  font-size: 2.5rem;
+  line-height: 1;
+  transition: transform .15s ease-out;
+
+  .easterEgg:active & {
+    transform: scale(.85) rotate(-8deg);
+  }
+}
+
+.hint {
+  font-size: .8125rem;
+  color: var(--secondary-text-color);
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+}
