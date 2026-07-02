@@ -2,7 +2,7 @@ import type {Database} from '.';
 import {ActiveAccountNumber} from '@lib/accounts/types';
 import {MOUNT_CLASS_TO} from '@config/debug';
 
-export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs'>;
+export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs' | 'viewOnceMedia'>;
 export type CommonDatabase = Database<'session' | 'localStorage'>;
 
 export const getOldDatabaseState = (): AccountDatabase => ({
@@ -46,9 +46,9 @@ export const getCommonDatabaseState = (): CommonDatabase => ({
 
 export const getDatabaseState = (
   accountNumber: ActiveAccountNumber
-): Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs'> => ({
+): Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs' | 'viewOnceMedia'> => ({
   name: `tweb-account-${accountNumber}`,
-  version: 12,
+  version: 13,
   stores: [
     {
       name: 'session',
@@ -95,6 +95,12 @@ export const getDatabaseState = (
       // feature. See lib/rabbitgram/snoozedDialogs.ts.
       name: 'snoozedDialogs',
       encryptedName: 'snoozedDialogs__encrypted'
+    },
+    {
+      // RabbitGram: captured view-once/self-destructing photos and videos,
+      // base64-encoded. See appMessagesManager's captureViewOnceMediaIfEnabled.
+      name: 'viewOnceMedia',
+      encryptedName: 'viewOnceMedia__encrypted'
     }
   ]
 });

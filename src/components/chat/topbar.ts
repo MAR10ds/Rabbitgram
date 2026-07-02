@@ -29,6 +29,7 @@ import {CallType} from '@lib/calls/types';
 import PopupMute from '@components/popups/mute';
 import PopupDeletedMessages from '@components/popups/deletedMessages';
 import {buildChatHistoryHtml, downloadTextFile, fetchChatHistoryForExport, EXPORT_MAX_MESSAGES} from '@lib/rabbitgram/exportChatHistory';
+import PopupViewOnceMedia from '@components/popups/viewOnceMedia';
 import {AppManagers} from '@lib/managers';
 import hasRights from '@appManagers/utils/chats/hasRights';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
@@ -582,6 +583,13 @@ export default class ChatTopbar {
           console.error('[RabbitGram] export chat history failed', error);
           toastNew({langPackKey: 'RabbitGram.ExportHistory.Failed'});
         }
+      },
+      verify: () => this.chat.type === ChatType.Chat
+    }, {
+      icon: 'eye2',
+      text: 'RabbitGram.ViewOnceMedia.MenuButton',
+      onClick: () => {
+        PopupElement.createPopup(PopupViewOnceMedia, this.peerId);
       },
       verify: () => this.chat.type === ChatType.Chat
     }, {

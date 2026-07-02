@@ -107,6 +107,18 @@ const RabbitGramSettingsTab = () => {
           <Row.Title>{i18n('RabbitGram.Settings.HideReadStatus')}</Row.Title>
           <Row.Subtitle>{i18n('RabbitGram.Settings.HideReadStatusSubtitle')}</Row.Subtitle>
         </Row>
+        <Row>
+          <Row.Icon icon="eye2" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.keepViewOnceMedia}
+              onChange={(value) => setAppSettings('keepViewOnceMedia', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.KeepViewOnceMedia')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.KeepViewOnceMediaSubtitle')}</Row.Subtitle>
+        </Row>
       </Section>
       <Section name="RabbitGram.Settings.AppearanceSectionTitle">
         <Row>

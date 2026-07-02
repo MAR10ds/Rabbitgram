@@ -94,6 +94,9 @@ import {createBotforumTopicFromAction} from './utils/dialogs/createBotforumTopic
 import {AttachedMedia, CreatePollPayload} from '@components/popups/createPoll/storeContext';
 import AppStorage from '@lib/storage';
 import {AccountDatabase, getDatabaseState} from '@config/databases/state';
+import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
+import readBlobAsUint8Array from '@helpers/blob/readBlobAsUint8Array';
+import bytesToBase64 from '@helpers/bytes/bytesToBase64';
 
 // RabbitGram: one locally-kept snapshot of a message the server deleted, so
 // it can still be viewed from the "Deleted messages" popup. See
@@ -114,6 +117,22 @@ export type EditedMessageRecord = {
 };
 
 const MAX_EDITED_VERSIONS_PER_MESSAGE = 50;
+
+// RabbitGram: one locally-kept copy of a view-once/self-destructing photo or
+// video, captured at view time (before the server tells every client to
+// drop the photo/document reference forever). Stored as base64 rather than
+// a raw Blob — AppStorage's encrypted path JSON.stringifies values when a
+// passcode is set, which would silently corrupt a Blob. See
+// captureViewOnceMediaIfEnabled / getViewOnceMedia below.
+export type ViewOnceMediaRecord = {
+  mid: number,
+  mediaType: 'photo' | 'video',
+  mimeType: string,
+  base64: string,
+  capturedAt: number
+};
+
+const MAX_VIEWONCE_MEDIA_PER_PEER = 30;
 
 // console.trace('include');
 // TODO: если удалить диалог находясь в папке, то он не удалится из папки и будет виден в настройках
@@ -590,6 +609,9 @@ export class AppMessagesManager extends AppManager {
   // 'settings_updated' event so readHistory/readMessages (hot, synchronous
   // paths) don't need to await appStateManager.getState() on every call.
   private hideReadStatusEnabled = false;
+  // RabbitGram: local, per-peer log of captured view-once media (see
+  // captureViewOnceMediaIfEnabled / getViewOnceMedia).
+  private viewOnceMediaStorage: AppStorage<Record<PeerId, ViewOnceMediaRecord[]>, AccountDatabase>;
 
   private maxSeenId = 0;
 
@@ -660,6 +682,7 @@ export class AppMessagesManager extends AppManager {
   protected after() {
     this.deletedMessagesStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'deletedMessages');
     this.editedMessagesStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'editedMessages');
+    this.viewOnceMediaStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'viewOnceMedia');
 
     this.appStateManager.getState().then((state) => {
       this.hideReadStatusEnabled = !!state.settings?.hideReadStatus;
@@ -6755,6 +6778,13 @@ export class AppMessagesManager extends AppManager {
       if((isForum || isBotforum) && !threadId) {
         threadId = getMessageThreadId(message as Message.message, {isForum, isBotforum});
       }
+
+      // RabbitGram: this is the last point the photo/document reference is
+      // still guaranteed valid — onUpdateReadMessagesContents (fired once the
+      // server round-trip below completes) deletes it forever.
+      if(message._ === 'message') {
+        this.captureViewOnceMediaIfEnabled(message);
+      }
     }
 
     // Capture the badge state BEFORE processLocalUpdate (called below) flips
@@ -10586,6 +10616,60 @@ export class AppMessagesManager extends AppManager {
 
     const {[mid]: _removed, ...rest} = byMid;
     return this.editedMessagesStorage.set({[peerId]: rest});
+  }
+
+  // RabbitGram: fire-and-forget capture of a view-once photo/video, called
+  // right as the user opens it (see readMessages above). Must never throw
+  // into the caller — a failed capture should not break normal reading.
+  private captureViewOnceMediaIfEnabled(message: Message.message) {
+    const media = message.media;
+    if(!media) return;
+
+    const ttlSeconds = (media as MessageMedia.messageMediaPhoto).ttl_seconds ||
+      (media as MessageMedia.messageMediaDocument).ttl_seconds;
+    if(!ttlSeconds) return;
+
+    this.appStateManager.getState().then(async(state) => {
+      if(!state.settings?.keepViewOnceMedia) return;
+
+      let blob: Blob;
+      let mimeType: string;
+      let mediaType: ViewOnceMediaRecord['mediaType'];
+
+      if(media._ === 'messageMediaPhoto' && media.photo) {
+        const photo = media.photo as MyPhoto;
+        const size = choosePhotoSize(photo, 2560, 2560);
+        blob = await this.apiFileManager.downloadMedia({media: photo, thumb: size as PhotoSize});
+        mimeType = 'image/jpeg';
+        mediaType = 'photo';
+      } else if(media._ === 'messageMediaDocument' && media.document) {
+        const doc = media.document as MyDocument;
+        blob = await this.apiFileManager.downloadMedia({media: doc});
+        mimeType = doc.mime_type || 'application/octet-stream';
+        mediaType = 'video';
+      } else {
+        return;
+      }
+
+      const bytes = await readBlobAsUint8Array(blob);
+      const base64 = bytesToBase64(bytes);
+
+      const peerId = message.peerId;
+      const existing = await this.viewOnceMediaStorage.get(peerId);
+      const list = (existing || []).slice(-(MAX_VIEWONCE_MEDIA_PER_PEER - 1));
+      list.push({mid: message.mid, mediaType, mimeType, base64, capturedAt: tsNow(true)});
+      await this.viewOnceMediaStorage.set({[peerId]: list});
+    }).catch((error) => {
+      this.log.error('captureViewOnceMediaIfEnabled', error);
+    });
+  }
+
+  public async getViewOnceMedia(peerId: PeerId): Promise<ViewOnceMediaRecord[]> {
+    return (await this.viewOnceMediaStorage.get(peerId)) || [];
+  }
+
+  public clearViewOnceMedia(peerId: PeerId) {
+    return this.viewOnceMediaStorage.delete(peerId);
   }
 
   private dispatchGroupedEdit(groupedId: string, storage: MessagesStorage, deletedMids?: number[]) {
