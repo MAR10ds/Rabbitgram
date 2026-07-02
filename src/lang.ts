@@ -4870,7 +4870,13 @@ const lang = {
   'RabbitGram.Settings.HideTypingStatus': 'Hide Typing Status',
   'RabbitGram.Settings.HideTypingStatusSubtitle': 'Stop sending “typing…” notifications to other people.',
   'RabbitGram.Settings.HideOnlineStatus': 'Hide Online Status',
-  'RabbitGram.Settings.HideOnlineStatusSubtitle': 'Always appear offline to other people, regardless of your Last Seen privacy setting.'
+  'RabbitGram.Settings.HideOnlineStatusSubtitle': 'Always appear offline to other people, regardless of your Last Seen privacy setting.',
+
+  // RabbitGram: dedicated top-level settings tab for all the app's own
+  // features, so they're not buried in the stock Privacy & Security screen
+  'RabbitGram.Settings.MenuTitle': 'RabbitGram',
+  'RabbitGram.Settings.SectionTitle': 'Privacy & Recovery',
+  'RabbitGram.Settings.SectionCaption': 'These features are specific to RabbitGram and are not part of stock Telegram.'
 };
 
 export default lang;
