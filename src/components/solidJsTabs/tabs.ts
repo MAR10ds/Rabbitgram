@@ -97,6 +97,12 @@ export const AppKeyboardShortcutsTab =
     getComponentModule: () => import('../sidebarLeft/tabs/keyboardShortcuts')
   });
 
+export const AppRabbitGramSettingsTab =
+  scaffoldSolidJSTab({
+    title: 'RabbitGram.Settings.MenuTitle',
+    getComponentModule: () => import('../sidebarLeft/tabs/rabbitgramSettings')
+  });
+
 
 type AppAdminRecentActionsTabPayload = {
   channelId: ChatId;

@@ -11,6 +11,7 @@ import {
   AppSpeakersAndCameraTab,
   getEditProfileInitArgs
 } from '@components/solidJsTabs';
+import {AppRabbitGramSettingsTab} from '@components/solidJsTabs/tabs';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import {AppDataAndStorageTab} from '@components/solidJsTabs/tabs';
 import ButtonIcon from '@components/buttonIcon';
@@ -123,6 +124,7 @@ const Settings = () => {
 
   // ── Sub-tab rows (notifications/data/privacy/general/folders/stickers).
   const subTabConfigs: SubTabConfig[] = [
+    makeSubTabConfig('star', 'RabbitGram.Settings.MenuTitle', AppRabbitGramSettingsTab, tab),
     makeSubTabConfig('unmute', 'AccountSettings.Notifications', AppNotificationsTab, tab),
     makeSubTabConfig('data', 'DataSettings', AppDataAndStorageTab, tab),
     makeSubTabConfig('lock', 'AccountSettings.PrivacyAndSecurity', AppPrivacyAndSecurityTab, tab),

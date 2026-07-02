@@ -4244,6 +4244,9 @@
 "RabbitGram.Settings.HideTypingStatusSubtitle" = "Stop sending “typing…” notifications to other people.";
 "RabbitGram.Settings.HideOnlineStatus" = "Hide Online Status";
 "RabbitGram.Settings.HideOnlineStatusSubtitle" = "Always appear offline to other people, regardless of your Last Seen privacy setting.";
+"RabbitGram.Settings.MenuTitle" = "RabbitGram";
+"RabbitGram.Settings.SectionTitle" = "Privacy & Recovery";
+"RabbitGram.Settings.SectionCaption" = "These features are specific to RabbitGram and are not part of stock Telegram.";
 "Login.Title" = "Sign in to Telegram";
 "Login.PhoneLabel" = "Phone Number";
 "Login.PhoneLabelInvalid" = "Phone Number Invalid";
