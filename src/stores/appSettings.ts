@@ -1,4 +1,4 @@
-import {createRoot} from 'solid-js';
+import {createEffect, createRoot} from 'solid-js';
 import {createStore, SetStoreFunction, unwrap} from 'solid-js/store';
 import {StateSettings} from '@config/state';
 import rootScope from '@lib/rootScope';
@@ -6,7 +6,19 @@ import {joinDeepPath} from '@helpers/object/setDeepProperty';
 import getDeepProperty from '@helpers/object/getDeepProperty';
 import {MOUNT_CLASS_TO} from '@config/debug';
 
-const [appSettings, _setAppSettings] = createRoot(() => createStore<StateSettings>({} as any));
+const [appSettings, _setAppSettings] = createRoot(() => {
+  const store = createStore<StateSettings>({} as any);
+
+  // RabbitGram: compact chat list is a pure CSS toggle (hides the last-message
+  // preview line), so it's wired here at the app root rather than inside the
+  // settings tab component — it has to apply globally regardless of whether
+  // that tab is ever opened. See src/scss/partials/_chatlist.scss.
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-compact-chatlist', !!store[0].compactChatList);
+  });
+
+  return store;
+});
 
 let silent = false;
 const setAppSettings: SetStoreFunction<StateSettings, Promise<void>> = (...args: any[]) => {

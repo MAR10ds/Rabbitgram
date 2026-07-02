@@ -4241,9 +4241,11 @@
 "RabbitGram.Settings.KeepEditedMessages" = "Keep Edit History";
 "RabbitGram.Settings.KeepEditedMessagesSubtitle" = "Save a local copy of a message’s previous text before each edit, viewable from that message’s context menu.";
 "RabbitGram.Settings.HideTypingStatus" = "Hide Typing Status";
-"RabbitGram.Settings.HideTypingStatusSubtitle" = "Stop sending “typing…” notifications to other people.";
+"RabbitGram.Settings.HideTypingStatusSubtitle" = "Stop sending “typing…”, “recording…”, “uploading…” and sticker-picking notifications to other people.";
 "RabbitGram.Settings.HideOnlineStatus" = "Hide Online Status";
 "RabbitGram.Settings.HideOnlineStatusSubtitle" = "Always appear offline to other people, regardless of your Last Seen privacy setting.";
+"RabbitGram.Settings.HideReadStatus" = "Hide Read Status";
+"RabbitGram.Settings.HideReadStatusSubtitle" = "Don’t send read receipts (message and voice/video “played” ticks) — your own unread badges still clear normally.";
 "RabbitGram.Settings.MenuTitle" = "RabbitGram";
 "RabbitGram.Settings.SectionTitle" = "Privacy & Recovery";
 "RabbitGram.Settings.SectionCaption" = "These features are specific to RabbitGram and are not part of stock Telegram.";

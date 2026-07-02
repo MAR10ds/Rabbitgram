@@ -4868,9 +4868,14 @@ const lang = {
 
   // RabbitGram: outgoing status privacy toggles
   'RabbitGram.Settings.HideTypingStatus': 'Hide Typing Status',
-  'RabbitGram.Settings.HideTypingStatusSubtitle': 'Stop sending “typing…” notifications to other people.',
+  'RabbitGram.Settings.HideTypingStatusSubtitle': 'Stop sending “typing…”, “recording…”, “uploading…” and sticker-picking notifications to other people.',
   'RabbitGram.Settings.HideOnlineStatus': 'Hide Online Status',
   'RabbitGram.Settings.HideOnlineStatusSubtitle': 'Always appear offline to other people, regardless of your Last Seen privacy setting.',
+  'RabbitGram.Settings.HideReadStatus': 'Hide Read Status',
+  'RabbitGram.Settings.HideReadStatusSubtitle': 'Don’t send read receipts (message and voice/video “played” ticks) — your own unread badges still clear normally.',
+  'RabbitGram.Settings.CompactChatList': 'Compact Chat List',
+  'RabbitGram.Settings.CompactChatListSubtitle': 'Hide the message preview line in the chat list to fit more chats on screen.',
+  'RabbitGram.Settings.AppearanceSectionTitle': 'Appearance',
 
   // RabbitGram: dedicated top-level settings tab for all the app's own
   // features, so they're not buried in the stock Privacy & Security screen

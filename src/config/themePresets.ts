@@ -30,6 +30,8 @@ export type AccentPreset = {
 };
 
 // dayClassic — tweb's `day` AppTheme. iOS dayClassicColorPresets, indices 101..107.
+// id 501 ("Bunny") is a RabbitGram-original addition — see below, kept out of the
+// 101-107 iOS-mirrored range so it can never collide with an upstream index.
 const dayClassicAccentPresets: AccentPreset[] = [
   {id: 106, accent_color: 0xf55783, message_colors: [0xd6f5ff, 0xc9fdfe], wallpaper: {intensity: 50, background_color: 0x8dc0eb, second_background_color: 0xb9d1ea, third_background_color: 0xc6b1ef, fourth_background_color: 0xebd7ef}},
   {id: 102, accent_color: 0xff5fa9, message_colors: [0xfff4d7],            wallpaper: {intensity: 50, background_color: 0xeaa36e, second_background_color: 0xf0e486, third_background_color: 0xf29ebf, fourth_background_color: 0xe8c06e}},
@@ -37,23 +39,31 @@ const dayClassicAccentPresets: AccentPreset[] = [
   {id: 101, accent_color: 0x7e5fe5, message_colors: [0xf5e2ff],            wallpaper: {intensity: 50, background_color: 0xe4b2ea, second_background_color: 0x8376c2, third_background_color: 0xeab9d9, fourth_background_color: 0xb493e6}},
   {id: 107, accent_color: 0x2cb9ed, message_colors: [0xadf7b5, 0xfcff8b],  wallpaper: {intensity: 50, background_color: 0x1a2e1a, second_background_color: 0x47623c, third_background_color: 0x222e24, fourth_background_color: 0x314429}},
   {id: 103, accent_color: 0x199972, message_colors: [0xfffec7],            wallpaper: {intensity: 50, background_color: 0xdceb92, second_background_color: 0x8fe1d6, third_background_color: 0x67a3f2, fourth_background_color: 0x85d685}},
-  {id: 105, accent_color: 0xda90d9, message_colors: [0x94fff9, 0xccffc7],  wallpaper: {intensity: 50, background_color: 0xffc3b2, second_background_color: 0xe2c0ff, third_background_color: 0xffe7b2}}
+  {id: 105, accent_color: 0xda90d9, message_colors: [0x94fff9, 0xccffc7],  wallpaper: {intensity: 50, background_color: 0xffc3b2, second_background_color: 0xe2c0ff, third_background_color: 0xffe7b2}},
+  // "Bunny" — soft pink/lilac accent with a pastel pink-lavender-cream-mint wallpaper.
+  {id: 501, accent_color: 0xff6fa5, message_colors: [0xffe1f0, 0xf3e0ff],  wallpaper: {intensity: 45, background_color: 0xffc9e8, second_background_color: 0xd6b3ff, third_background_color: 0xfff0c9, fourth_background_color: 0xb8f0d6}}
 ];
 
 // `light` AppTheme = baseThemeDay. iOS dayColorPresets — no wallpaper, gradient bubbles only.
+// id 502 ("Carrot") is a RabbitGram-original addition, out of the 101-104 iOS range.
 const dayAccentPresets: AccentPreset[] = [
   {id: 101, accent_color: 0x0088ff, message_colors: [0x0088ff, 0xff53f4]},
   {id: 102, accent_color: 0x00b09b, message_colors: [0xaee946, 0x00b09b]},
   {id: 103, accent_color: 0xd33213, message_colors: [0xf9db00, 0xd33213]},
-  {id: 104, accent_color: 0xea8ced, message_colors: [0xea8ced, 0x00c2ed]}
+  {id: 104, accent_color: 0xea8ced, message_colors: [0xea8ced, 0x00c2ed]},
+  // "Carrot" — warm orange-to-honey gradient, no wallpaper (matches this base's plain style).
+  {id: 502, accent_color: 0xff8c42, message_colors: [0xff8c42, 0xffd166]}
 ];
 
 // `night` AppTheme. iOS nightColorPresets — index 101 is commented out upstream,
 // presets carry dark pattern wallpapers (intensity stored positive; sign is applied via `dark: true`).
+// id 503 ("Moonlit Burrow") is a RabbitGram-original addition, out of the 102-104 iOS range.
 const nightAccentPresets: AccentPreset[] = [
   {id: 102, accent_color: 0x00b09b, message_colors: [0xaee946, 0x00b09b], wallpaper: {dark: true, intensity: 35, background_color: 0xe4b2ea, second_background_color: 0x8376c2, third_background_color: 0xeab9d9, fourth_background_color: 0xb493e6}},
   {id: 103, accent_color: 0xd33213, message_colors: [0xf9db00, 0xd33213], wallpaper: {dark: true, intensity: 40, background_color: 0xfec496, second_background_color: 0xdd6cb9, third_background_color: 0x962fbf, fourth_background_color: 0x4f5bd5}},
-  {id: 104, accent_color: 0xea8ced, message_colors: [0xea8ced, 0x00c2ed], wallpaper: {dark: true, intensity: 30, background_color: 0x8adbf2, second_background_color: 0x888dec, third_background_color: 0xe39fea, fourth_background_color: 0x679ced}}
+  {id: 104, accent_color: 0xea8ced, message_colors: [0xea8ced, 0x00c2ed], wallpaper: {dark: true, intensity: 30, background_color: 0x8adbf2, second_background_color: 0x888dec, third_background_color: 0xe39fea, fourth_background_color: 0x679ced}},
+  // "Moonlit Burrow" — deep violet accent, dark indigo/plum wallpaper gradient.
+  {id: 503, accent_color: 0x8a63f2, message_colors: [0x8a63f2, 0x5b3fa0],  wallpaper: {dark: true, intensity: 35, background_color: 0x2a1f4d, second_background_color: 0x1b1533, third_background_color: 0x3a2a5c, fourth_background_color: 0x241b40}}
 ];
 
 // iOS PresentationThemeBaseColor enum — plain accent presets without bubble gradient or wallpaper.
