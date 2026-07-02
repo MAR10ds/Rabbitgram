@@ -4884,6 +4884,19 @@ const lang = {
   // RabbitGram: easter egg (tap the bunny logo 5x in Settings > RabbitGram)
   'RabbitGram.EasterEgg.Toast': '🥕 You found the secret burrow!',
 
+  // RabbitGram: export chat history to an HTML file
+  'RabbitGram.ExportHistory.MenuButton': 'Export Chat History',
+  'RabbitGram.ExportHistory.Started': 'Exporting chat history…',
+  'RabbitGram.ExportHistory.Done': {
+    'one_value': 'Exported %d message to a file.',
+    'other_value': 'Exported %d messages to a file.'
+  },
+  'RabbitGram.ExportHistory.DoneCapped': {
+    'one_value': 'Exported the most recent %d message to a file (older messages were skipped to keep this fast).',
+    'other_value': 'Exported the most recent %d messages to a file (older messages were skipped to keep this fast).'
+  },
+  'RabbitGram.ExportHistory.Failed': 'Couldn’t export this chat — try again in a moment.',
+
   // RabbitGram: dedicated top-level settings tab for all the app's own
   // features, so they're not buried in the stock Privacy & Security screen
   'RabbitGram.Settings.MenuTitle': 'RabbitGram',
