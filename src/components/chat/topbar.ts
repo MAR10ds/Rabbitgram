@@ -28,6 +28,7 @@ import IS_CALL_SUPPORTED from '@environment/callSupport';
 import {CallType} from '@lib/calls/types';
 import PopupMute from '@components/popups/mute';
 import PopupDeletedMessages from '@components/popups/deletedMessages';
+import {buildChatHistoryHtml, downloadTextFile, fetchChatHistoryForExport, EXPORT_MAX_MESSAGES} from '@lib/rabbitgram/exportChatHistory';
 import {AppManagers} from '@lib/managers';
 import hasRights from '@appManagers/utils/chats/hasRights';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
@@ -561,6 +562,26 @@ export default class ChatTopbar {
       text: 'RabbitGram.DeletedMessages.MenuButton',
       onClick: () => {
         PopupElement.createPopup(PopupDeletedMessages, this.peerId);
+      },
+      verify: () => this.chat.type === ChatType.Chat
+    }, {
+      icon: 'download',
+      text: 'RabbitGram.ExportHistory.MenuButton',
+      onClick: async() => {
+        const peerId = this.peerId;
+        toastNew({langPackKey: 'RabbitGram.ExportHistory.Started'});
+        try {
+          const messages = await fetchChatHistoryForExport(this.managers, peerId);
+          const html = await buildChatHistoryHtml(this.managers, peerId, messages);
+          downloadTextFile(`rabbitgram-export-${Date.now()}.html`, html, 'text/html');
+          toastNew({
+            langPackKey: messages.length >= EXPORT_MAX_MESSAGES ? 'RabbitGram.ExportHistory.DoneCapped' : 'RabbitGram.ExportHistory.Done',
+            langPackArguments: [messages.length]
+          });
+        } catch(error) {
+          console.error('[RabbitGram] export chat history failed', error);
+          toastNew({langPackKey: 'RabbitGram.ExportHistory.Failed'});
+        }
       },
       verify: () => this.chat.type === ChatType.Chat
     }, {
