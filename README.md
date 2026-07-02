@@ -1,8 +1,19 @@
-## Telegram Web K
-Based on Webogram, patched and improved. Available for everyone here: https://web.telegram.org/k/
+## RabbitGram
 
+RabbitGram is a Telegram web client, forked from [tweb](https://github.com/morethanwords/tweb) — the engine behind the official [web.telegram.org/k](https://web.telegram.org/k/).
+
+### Attribution
+
+This project is built on top of **tweb (Telegram Web K)**, created by Eduard Kuzmenko and contributors, itself based on Webogram. The original project is licensed under the **GNU General Public License v3.0** (see [LICENSE](/LICENSE)), and RabbitGram is distributed under the same license, unmodified, as required.
+
+- Upstream project: https://github.com/morethanwords/tweb
+- Upstream live client: https://web.telegram.org/k/
+- License: [GPLv3](/LICENSE)
+
+RabbitGram carries the tweb git history forward as a fresh repository (no upstream commit history), starting from a snapshot of the upstream `master` branch. See [ARCHITECTURE.md](/ARCHITECTURE.md) for a map of the codebase.
 
 ### Developing
+
 Install dependencies with:
 ```lang=bash
 pnpm install
@@ -21,10 +32,10 @@ Run `node build` to build the minimized production version of the app. Copy `pub
 
 ### Running in docker
 
-#### Developing: 
+#### Developing:
 * Install dependencies `docker-compose up tweb.dependencies`.
 * Run develop container `docker-compose up tweb.develop `.
-* Open http://localhost:8080/ in your browser. 
+* Open http://localhost:8080/ in your browser.
 
 #### Production:
 * Run `docker-compose up tweb.production -d` nginx image and container to serve the build
@@ -66,10 +77,6 @@ You can also take and load snapshots of the local storage and indexed DB using t
 #### Preview all icons
 You can see all the available svg icons by calling the `showIconLibrary()` global function in the browser's console.
 
-### Troubleshooting & Suggesting
-
-If you find an issue with this app or wish something to be added, let Telegram know using the [Suggestions Platform](https://bugs.telegram.org/c/4002).
-
 ### Licensing
 
-The source code is licensed under GPL v3. License is available [here](/LICENSE).
+The source code is licensed under GPL v3. License is available [here](/LICENSE). This is a derivative work of [tweb](https://github.com/morethanwords/tweb); per GPLv3, the license text is carried forward unmodified.
