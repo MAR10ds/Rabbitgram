@@ -3,6 +3,7 @@ import type Chat from '@components/chat/chat';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import ButtonMenu, {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
 import PopupDeleteMessages from '@components/popups/deleteMessages';
+import PopupEditHistory from '@components/popups/editHistory';
 import showForwardPopup from '@components/popups/forward';
 import PopupPinMessage from '@components/popups/unpinMessage';
 import {copyTextToClipboard} from '@helpers/clipboard';
@@ -1097,6 +1098,13 @@ export default class ChatContextMenu {
       text: 'Resend',
       onClick: () => this.handleRepay(),
       verify: () => 'repayRequest' in this.message && !!this.message.repayRequest
+    }, {
+      icon: 'clock',
+      text: 'RabbitGram.EditHistory.MenuButton',
+      onClick: () => {
+        PopupElement.createPopup(PopupEditHistory, this.messagePeerId, this.mid, this.message as Message.message);
+      },
+      verify: () => this.message._ === 'message' && !!this.message.edit_date
     }, {
       icon: 'delete',
       get className() {

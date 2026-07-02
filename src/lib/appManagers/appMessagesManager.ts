@@ -92,6 +92,28 @@ import namedPromises from '@helpers/namedPromises';
 import callbackifyAll from '@helpers/callbackifyAll';
 import {createBotforumTopicFromAction} from './utils/dialogs/createBotforumTopicFromAction';
 import {AttachedMedia, CreatePollPayload} from '@components/popups/createPoll/storeContext';
+import AppStorage from '@lib/storage';
+import {AccountDatabase, getDatabaseState} from '@config/databases/state';
+
+// RabbitGram: one locally-kept snapshot of a message the server deleted, so
+// it can still be viewed from the "Deleted messages" popup. See
+// saveDeletedMessageSnapshot / getDeletedMessages below.
+export type DeletedMessageRecord = {
+  message: Message.message,
+  deletedAt: number
+};
+
+const MAX_DELETED_MESSAGES_PER_PEER = 200;
+
+// RabbitGram: one locally-kept snapshot of a message's text/media as it was
+// right before an edit overwrote it. See saveEditedMessageSnapshot /
+// getMessageEditHistory below.
+export type EditedMessageRecord = {
+  message: Message.message,
+  editedAt: number
+};
+
+const MAX_EDITED_VERSIONS_PER_MESSAGE = 50;
 
 // console.trace('include');
 // TODO: если удалить диалог находясь в папке, то он не удалится из папки и будет виден в настройках
@@ -558,6 +580,12 @@ export class AppMessagesManager extends AppManager {
   private extendedMedia: Map<PeerId, Map<number, CancellablePromise<void>>> = new Map();
 
   private deletedMessages: Set<string> = new Set();
+  // RabbitGram: local, per-peer log of deleted-message snapshots (see
+  // saveDeletedMessageSnapshot / getDeletedMessages).
+  private deletedMessagesStorage: AppStorage<Record<PeerId, DeletedMessageRecord[]>, AccountDatabase>;
+  // RabbitGram: local, per-peer-per-message log of pre-edit snapshots (see
+  // saveEditedMessageSnapshot / getMessageEditHistory).
+  private editedMessagesStorage: AppStorage<Record<PeerId, Record<number, EditedMessageRecord[]>>, AccountDatabase>;
 
   private maxSeenId = 0;
 
@@ -626,6 +654,9 @@ export class AppMessagesManager extends AppManager {
   }
 
   protected after() {
+    this.deletedMessagesStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'deletedMessages');
+    this.editedMessagesStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'editedMessages');
+
     this.clear(true);
 
     this.repayRequestHandler = new RepayRequestHandler({
@@ -10255,6 +10286,14 @@ export class AppMessagesManager extends AppManager {
       threadId = undefined;
     }
 
+    // RabbitGram: never reveal that this client is typing when the user has
+    // opted out — including the cancel-action, since we never sent the
+    // typing action it would be cancelling in the first place.
+    const state = await this.appStateManager.getState();
+    if(state.settings?.hideTypingStatus) {
+      return false;
+    }
+
     const key = this.getTypingKey(peerId, threadId);
     let typing = this.typings[key];
     if(
@@ -10351,6 +10390,10 @@ export class AppMessagesManager extends AppManager {
         this.deletedMessages.add(`${deletedPeerId}_${message.mid}`);
       }
 
+      if(shouldClearContexts && message._ === 'message') {
+        this.saveDeletedMessageSnapshot(peerId, message);
+      }
+
       if((message as Message.message).pFlags.pinned) {
         this.resetPinnedMessagesCache(peerId, [mid], false);
       }
@@ -10436,8 +10479,39 @@ export class AppMessagesManager extends AppManager {
     return history;
   }
 
+  // RabbitGram: persist a copy of a message that's about to be wiped from
+  // the live storage, so it can be recovered later via getDeletedMessages.
+  // Fire-and-forget — must not slow down or fail the deletion itself.
+  private saveDeletedMessageSnapshot(peerId: PeerId, message: Message.message) {
+    this.appStateManager.getState().then((state) => {
+      if(!state.settings?.keepDeletedMessages) {
+        return;
+      }
+
+      return this.deletedMessagesStorage.get(peerId).then((existing) => {
+        const list = (existing || []).slice(-(MAX_DELETED_MESSAGES_PER_PEER - 1));
+        list.push({message, deletedAt: tsNow(true)});
+        this.deletedMessagesStorage.set({[peerId]: list});
+      });
+    }).catch((error) => {
+      this.log.error('saveDeletedMessageSnapshot', error);
+    });
+  }
+
+  public getDeletedMessages(peerId: PeerId): Promise<DeletedMessageRecord[]> {
+    return this.deletedMessagesStorage.get(peerId).then((list) => list || []);
+  }
+
+  public clearDeletedMessages(peerId: PeerId) {
+    return this.deletedMessagesStorage.delete(peerId);
+  }
+
   private handleEditedMessage(oldMessage: Message, newMessage: Message, storage: MessagesStorage) {
     if(oldMessage._ === 'message') {
+      if(storage.type === 'history' && oldMessage.message !== undefined) {
+        this.saveEditedMessageSnapshot(oldMessage.peerId, oldMessage.mid, oldMessage);
+      }
+
       if((oldMessage.media as MessageMedia.messageMediaWebPage)?.webpage) {
         const messageKey = this.appWebPagesManager.getMessageKeyForPendingWebPage(oldMessage.peerId, oldMessage.mid, !!oldMessage.pFlags.is_scheduled);
         this.appWebPagesManager.deleteWebPageFromPending((oldMessage.media as MessageMedia.messageMediaWebPage).webpage, messageKey);
@@ -10460,6 +10534,41 @@ export class AppMessagesManager extends AppManager {
         this.appTranslationsManager.clearSummaries(oldMessage.peerId, oldMessage.mid);
       }
     }
+  }
+
+  // RabbitGram: persist the pre-edit version of a message, so it can be
+  // recovered later via getMessageEditHistory. Fire-and-forget — must not
+  // slow down or fail the edit itself.
+  private saveEditedMessageSnapshot(peerId: PeerId, mid: number, oldMessage: Message.message) {
+    this.appStateManager.getState().then((state) => {
+      if(!state.settings?.keepEditedMessages) {
+        return;
+      }
+
+      return this.editedMessagesStorage.get(peerId).then((existing) => {
+        const byMid = existing || {};
+        const list = (byMid[mid] || []).slice(-(MAX_EDITED_VERSIONS_PER_MESSAGE - 1));
+        list.push({message: copy(oldMessage), editedAt: tsNow(true)});
+        this.editedMessagesStorage.set({[peerId]: {...byMid, [mid]: list}});
+      });
+    }).catch((error) => {
+      this.log.error('saveEditedMessageSnapshot', error);
+    });
+  }
+
+  public async getMessageEditHistory(peerId: PeerId, mid: number): Promise<EditedMessageRecord[]> {
+    const byMid = await this.editedMessagesStorage.get(peerId);
+    return byMid?.[mid] || [];
+  }
+
+  public async clearMessageEditHistory(peerId: PeerId, mid: number) {
+    const byMid = await this.editedMessagesStorage.get(peerId);
+    if(!byMid || !(mid in byMid)) {
+      return;
+    }
+
+    const {[mid]: _removed, ...rest} = byMid;
+    return this.editedMessagesStorage.set({[peerId]: rest});
   }
 
   private dispatchGroupedEdit(groupedId: string, storage: MessagesStorage, deletedMids?: number[]) {

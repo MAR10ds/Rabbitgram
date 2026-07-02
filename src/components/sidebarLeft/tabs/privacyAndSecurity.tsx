@@ -73,6 +73,7 @@ const PrivacyAndSecurity: Component = () => {
   let sensitiveContent!: HTMLElement;
   let clearButton!: HTMLElement;
   let deleteButton!: HTMLElement;
+  let deletedMessagesContent!: HTMLElement;
 
   const [privacyCaption, setPrivacyCaption] = createSignal<LangPackKey>();
   const [newChatsHidden, setNewChatsHidden] = createSignal(false);
@@ -162,6 +163,67 @@ const PrivacyAndSecurity: Component = () => {
 
   onMount(() => {
     tab.container.classList.add('dont-u-dare-block-me');
+
+    {
+      const keepDeletedMessagesRow = new Row({
+        icon: 'undo',
+        titleLangKey: 'RabbitGram.Settings.KeepDeletedMessages',
+        subtitleLangKey: 'RabbitGram.Settings.KeepDeletedMessagesSubtitle',
+        checkboxField: new CheckboxField({
+          name: 'keep-deleted-messages',
+          stateKey: joinDeepPath('settings', 'keepDeletedMessages'),
+          listenerSetter: tab.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: tab.listenerSetter
+      });
+
+      const keepEditedMessagesRow = new Row({
+        icon: 'clock',
+        titleLangKey: 'RabbitGram.Settings.KeepEditedMessages',
+        subtitleLangKey: 'RabbitGram.Settings.KeepEditedMessagesSubtitle',
+        checkboxField: new CheckboxField({
+          name: 'keep-edited-messages',
+          stateKey: joinDeepPath('settings', 'keepEditedMessages'),
+          listenerSetter: tab.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: tab.listenerSetter
+      });
+
+      const hideTypingStatusRow = new Row({
+        icon: 'keyboard',
+        titleLangKey: 'RabbitGram.Settings.HideTypingStatus',
+        subtitleLangKey: 'RabbitGram.Settings.HideTypingStatusSubtitle',
+        checkboxField: new CheckboxField({
+          name: 'hide-typing-status',
+          stateKey: joinDeepPath('settings', 'hideTypingStatus'),
+          listenerSetter: tab.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: tab.listenerSetter
+      });
+
+      const hideOnlineStatusRow = new Row({
+        icon: 'online',
+        titleLangKey: 'RabbitGram.Settings.HideOnlineStatus',
+        subtitleLangKey: 'RabbitGram.Settings.HideOnlineStatusSubtitle',
+        checkboxField: new CheckboxField({
+          name: 'hide-online-status',
+          stateKey: joinDeepPath('settings', 'hideOnlineStatus'),
+          listenerSetter: tab.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: tab.listenerSetter
+      });
+
+      deletedMessagesContent.append(
+        keepDeletedMessagesRow.container,
+        keepEditedMessagesRow.container,
+        hideTypingStatusRow.container,
+        hideOnlineStatusRow.container
+      );
+    }
 
     const build = async() => {
       const SUBTITLE: LangPackKey = 'Loading';
@@ -722,6 +784,10 @@ const PrivacyAndSecurity: Component = () => {
         name="PrivacyTitle"
         caption={privacyCaption()}
         contentProps={{ref: (el) => privacyContent = el, class: 'privacy-navigation-container'}}
+      />
+      <Section
+        name="RabbitGram.DeletedMessages.Title"
+        contentProps={{ref: (el) => deletedMessagesContent = el}}
       />
       <Section
         name="NewChatsFromNonContacts"

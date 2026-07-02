@@ -171,6 +171,21 @@ export type StateSettings = {
     nightMode?: boolean,
     selectedThemeId: string
   },
+  // RabbitGram: keep a local snapshot of messages the server tells us were
+  // deleted, so they stay viewable from the chat's "Deleted messages" list
+  // even after they're removed from the live chat. See appMessagesManager's
+  // handleDeletedMessages / getDeletedMessages.
+  keepDeletedMessages: boolean,
+  // RabbitGram: keep a local snapshot of a message's previous text/media
+  // before each edit, viewable per-message via "Edit History". See
+  // appMessagesManager's handleEditedMessage / getMessageEditHistory.
+  keepEditedMessages: boolean,
+  // RabbitGram: don't send outgoing typing notifications (messages.setTyping)
+  // to peers, so this client never shows up as "typing..." to others.
+  hideTypingStatus: boolean,
+  // RabbitGram: don't broadcast this client's online presence to the
+  // server, so this account always appears offline/last-seen to others.
+  hideOnlineStatus: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -543,7 +558,11 @@ export const SETTINGS_INIT: StateSettings = {
   recordingMediaType: 'voice',
   qrCode: {
     selectedThemeId: ''
-  }
+  },
+  keepDeletedMessages: true,
+  keepEditedMessages: true,
+  hideTypingStatus: false,
+  hideOnlineStatus: false
 };
 
 export const STATE_INIT: State = {

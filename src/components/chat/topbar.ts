@@ -27,6 +27,7 @@ import IS_GROUP_CALL_SUPPORTED from '@environment/groupCallSupport';
 import IS_CALL_SUPPORTED from '@environment/callSupport';
 import {CallType} from '@lib/calls/types';
 import PopupMute from '@components/popups/mute';
+import PopupDeletedMessages from '@components/popups/deletedMessages';
 import {AppManagers} from '@lib/managers';
 import hasRights from '@appManagers/utils/chats/hasRights';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
@@ -555,6 +556,13 @@ export default class ChatTopbar {
         this.chat.selection.cancelSelection();
       },
       verify: () => this.chat.selection.isSelecting
+    }, {
+      icon: 'undo',
+      text: 'RabbitGram.DeletedMessages.MenuButton',
+      onClick: () => {
+        PopupElement.createPopup(PopupDeletedMessages, this.peerId);
+      },
+      verify: () => this.chat.type === ChatType.Chat
     }, {
       icon: 'adduser',
       text: 'AddContact',
