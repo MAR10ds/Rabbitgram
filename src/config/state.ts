@@ -194,6 +194,13 @@ export type StateSettings = {
   // RabbitGram: compact chat list — hides the last-message preview line to
   // fit more chats on screen. Pure CSS, wired in stores/appSettings.ts.
   compactChatList: boolean,
+  // RabbitGram: save a local copy of view-once/self-destructing photos and
+  // videos when you open them, viewable later from "Saved View-Once Media".
+  // Off by default — unlike the other recovery toggles, this one overrides
+  // an explicit ephemeral-viewing signal from the sender, so it should be an
+  // opt-in choice rather than a default. See appMessagesManager's
+  // captureViewOnceMediaIfEnabled / getViewOnceMedia.
+  keepViewOnceMedia: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -572,7 +579,8 @@ export const SETTINGS_INIT: StateSettings = {
   hideTypingStatus: false,
   hideOnlineStatus: false,
   hideReadStatus: false,
-  compactChatList: false
+  compactChatList: false,
+  keepViewOnceMedia: false
 };
 
 export const STATE_INIT: State = {

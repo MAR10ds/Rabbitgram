@@ -4901,6 +4901,14 @@ const lang = {
   'RabbitGram.SnoozeChat.MenuButton': 'Snooze for 8 Hours',
   'RabbitGram.SnoozeChat.Toast': '😴 Chat snoozed for 8 hours — it’ll come back on its own.',
 
+  // RabbitGram: saved view-once/self-destructing media (see appMessagesManager.getViewOnceMedia)
+  'RabbitGram.ViewOnceMedia.MenuButton': 'Saved View-Once Media',
+  'RabbitGram.ViewOnceMedia.Title': 'Saved View-Once Media',
+  'RabbitGram.ViewOnceMedia.Empty': 'No view-once photos or videos saved for this chat yet. Turn on "Keep View-Once Media" in Settings > RabbitGram, then open one to save it.',
+  'RabbitGram.ViewOnceMedia.ClearAll': 'Clear All',
+  'RabbitGram.Settings.KeepViewOnceMedia': 'Keep View-Once Media',
+  'RabbitGram.Settings.KeepViewOnceMediaSubtitle': 'Save a local copy of view-once photos and videos when you open them, viewable later from the chat menu. Off by default — this overrides the sender’s “view once” intent, so it’s opt-in.',
+
   // RabbitGram: dedicated top-level settings tab for all the app's own
   // features, so they're not buried in the stock Privacy & Security screen
   'RabbitGram.Settings.MenuTitle': 'RabbitGram',
