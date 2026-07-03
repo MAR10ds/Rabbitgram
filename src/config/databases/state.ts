@@ -2,7 +2,7 @@ import type {Database} from '.';
 import {ActiveAccountNumber} from '@lib/accounts/types';
 import {MOUNT_CLASS_TO} from '@config/debug';
 
-export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs' | 'viewOnceMedia'>;
+export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs' | 'viewOnceMedia' | 'customNotificationSound'>;
 export type CommonDatabase = Database<'session' | 'localStorage'>;
 
 export const getOldDatabaseState = (): AccountDatabase => ({
@@ -46,9 +46,9 @@ export const getCommonDatabaseState = (): CommonDatabase => ({
 
 export const getDatabaseState = (
   accountNumber: ActiveAccountNumber
-): Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs' | 'viewOnceMedia'> => ({
+): AccountDatabase => ({
   name: `tweb-account-${accountNumber}`,
-  version: 13,
+  version: 14,
   stores: [
     {
       name: 'session',
@@ -101,6 +101,12 @@ export const getDatabaseState = (
       // base64-encoded. See appMessagesManager's captureViewOnceMediaIfEnabled.
       name: 'viewOnceMedia',
       encryptedName: 'viewOnceMedia__encrypted'
+    },
+    {
+      // RabbitGram: user-uploaded custom notification sound, stored as a
+      // base64 data URL. See lib/rabbitgram/customNotificationSound.ts.
+      name: 'customNotificationSound',
+      encryptedName: 'customNotificationSound__encrypted'
     }
   ]
 });

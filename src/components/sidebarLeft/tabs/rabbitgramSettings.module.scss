@@ -30,3 +30,7 @@
   position: absolute;
   inset: 0;
 }
+
+.danger {
+  color: var(--danger-color, #e53935);
+}

@@ -38,6 +38,7 @@ import {unwrap} from 'solid-js/store';
 import AudioAssetPlayer from '@helpers/audioAssetPlayer';
 import {createEffect, createRoot, on} from 'solid-js';
 import appNavigationController from '@components/appNavigationController';
+import {loadCustomNotificationSound, playCustomNotificationSound} from '@lib/rabbitgram/customNotificationSound';
 
 type MyNotification = Notification & {
   hidden?: boolean,
@@ -177,6 +178,8 @@ export class UiNotificationsManager {
     this.audioAssetPlayer = new AudioAssetPlayer({
       notification: 'notification.mp3'
     });
+
+    loadCustomNotificationSound();
 
     this.appSettings = useAppSettings()[0];
 
@@ -838,6 +841,7 @@ export class UiNotificationsManager {
   // };
 
   public testSound(volume: number) {
+    if(playCustomNotificationSound(volume)) return;
     this.audioAssetPlayer.playWithThrottle({name: 'notification', volume}, 1000);
   }
 

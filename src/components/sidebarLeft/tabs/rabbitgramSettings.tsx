@@ -6,6 +6,15 @@ import {useAppSettings} from '@stores/appSettings';
 import {ConfettiContainer, ConfettiRef} from '@components/confetti';
 import {toastNew} from '@components/toast';
 import styles from './rabbitgramSettings.module.scss';
+import {createSignal} from 'solid-js';
+import {
+  getCustomNotificationSound,
+  setCustomNotificationSound,
+  clearCustomNotificationSound,
+  playCustomNotificationSound
+} from '@lib/rabbitgram/customNotificationSound';
+
+const MAX_SOUND_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 // RabbitGram: dedicated settings page for the app's own privacy/recovery
 // features (deleted-message recovery, edit history, status hiding) — kept
@@ -19,10 +28,49 @@ const EASTER_EGG_WINDOW_MS = 3000;
 
 const RabbitGramSettingsTab = () => {
   const [appSettings, setAppSettings] = useAppSettings();
+  const [customSoundName, setCustomSoundName] = createSignal(
+    getCustomNotificationSound()?.name ?? null
+  );
 
   let confetti!: ConfettiRef;
   let tapCount = 0;
   let tapResetTimer: number;
+
+  const onSoundUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'audio/*';
+    input.onchange = async() => {
+      const file = input.files?.[0];
+      if(!file) return;
+      if(file.size > MAX_SOUND_SIZE_BYTES) {
+        toastNew({langPackKey: 'RabbitGram.Settings.Sound.TooLarge'});
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = async(e) => {
+        const data = e.target?.result as string;
+        if(!data) return;
+        await setCustomNotificationSound(file.name, data, file.type);
+        setCustomSoundName(file.name);
+        toastNew({langPackKey: 'RabbitGram.Settings.Sound.Saved'});
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  };
+
+  const onSoundPreview = () => {
+    if(!playCustomNotificationSound(1)) {
+      toastNew({langPackKey: 'RabbitGram.Settings.Sound.NoCustom'});
+    }
+  };
+
+  const onSoundRemove = async() => {
+    await clearCustomNotificationSound();
+    setCustomSoundName(null);
+    toastNew({langPackKey: 'RabbitGram.Settings.Sound.Removed'});
+  };
 
   const onLogoClick = () => {
     tapCount++;
@@ -119,6 +167,23 @@ const RabbitGramSettingsTab = () => {
           <Row.Title>{i18n('RabbitGram.Settings.KeepViewOnceMedia')}</Row.Title>
           <Row.Subtitle>{i18n('RabbitGram.Settings.KeepViewOnceMediaSubtitle')}</Row.Subtitle>
         </Row>
+      </Section>
+      <Section name="RabbitGram.Settings.SoundSectionTitle" caption="RabbitGram.Settings.SoundSectionCaption">
+        <Row clickable={onSoundUpload}>
+          <Row.Icon icon="music" />
+          <Row.Title>{i18n('RabbitGram.Settings.Sound.Upload')}</Row.Title>
+          <Row.Subtitle>{customSoundName() ?? i18n('RabbitGram.Settings.Sound.Default')}</Row.Subtitle>
+        </Row>
+        <Row clickable={onSoundPreview}>
+          <Row.Icon icon="play" />
+          <Row.Title>{i18n('RabbitGram.Settings.Sound.Preview')}</Row.Title>
+        </Row>
+        {customSoundName() && (
+          <Row clickable={onSoundRemove}>
+            <Row.Icon icon="delete" />
+            <Row.Title class="danger">{i18n('RabbitGram.Settings.Sound.Remove')}</Row.Title>
+          </Row>
+        )}
       </Section>
       <Section name="RabbitGram.Settings.AppearanceSectionTitle">
         <Row>
