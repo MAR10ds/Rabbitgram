@@ -2657,8 +2657,12 @@ export default class ChatBubbles {
     this.readUnreaded(type);
   }
 
-  private readUnreaded(type: 'history' | 'content') {
+  private readUnreaded(type: 'history' | 'content', forced = false) {
     if(this.chat.isPreview) return;
+    // RabbitGram: readOnInteract — ghost-mode extension that skips the
+    // automatic viewport-triggered read entirely; only forceReadUnreaded()
+    // (wired to clicking a message / replying / forwarding) passes forced.
+    if(this.chat.appSettings.readOnInteract && !forced) return;
     const readPromiseKey = type === 'history' ? 'readPromise' : 'readContentPromise';
     if(this[readPromiseKey]) return;
 
@@ -2729,11 +2733,24 @@ export default class ChatBubbles {
     });
   }
 
+  // RabbitGram: readOnInteract — explicit trigger for the read call that
+  // readUnreaded() otherwise fires automatically on scroll. Call this from
+  // any user action that should count as "read": clicking a message,
+  // replying, forwarding.
+  public forceReadUnreaded() {
+    this.readUnreaded('history', true);
+    this.readUnreaded('content', true);
+  }
+
   public onBubblesClick = async(e: Event) => {
     // Previews are read-only — no media open, no jump-to-reply, no link follow, no
     // context menu. Belt-and-suspenders to the CSS `pointer-events: none` we put on
     // `.bubble` for preview mode.
     if(this.chat.isPreview) return;
+
+    if(this.chat.appSettings.readOnInteract) {
+      this.forceReadUnreaded();
+    }
     let target = e.target as HTMLElement;
     let bubble: HTMLElement = null, bubbleFullMid: FullMid;
     try {
@@ -9113,6 +9130,16 @@ export default class ChatBubbles {
             }
 
             nameDiv.dataset.peerId = '' + peerIdForColor;
+          }
+
+          // RabbitGram: channel badge — the message was posted in this group
+          // "as" a linked broadcast channel identity (fromId is a channel,
+          // not a user), so mark it with a small channel icon.
+          if(!message.fromId.isUser()) {
+            const fromPeer = apiManagerProxy.getPeer(message.fromId);
+            if((fromPeer as MTChat.channel)?._ === 'channel' && (fromPeer as MTChat.channel).pFlags?.broadcast) {
+              nameDiv.append(Icon('channel', 'rabbitgram-channel-badge'));
+            }
           }
         } else /* if(!message.reply_to_mid) */ {
           bubble.classList.add('hide-name');

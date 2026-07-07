@@ -184,6 +184,18 @@ const RabbitGramSettingsTab = () => {
           <Row.Subtitle>{i18n('RabbitGram.Settings.DontReadStoriesSubtitle')}</Row.Subtitle>
         </Row>
         <Row>
+          <Row.Icon icon="message" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.readOnInteract}
+              onChange={(value) => setAppSettings('readOnInteract', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.ReadOnInteract')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.ReadOnInteractSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
           <Row.Icon icon="sending" />
           <Row.CheckboxFieldToggle>
             <CheckboxFieldTsx
@@ -367,6 +379,30 @@ const RabbitGramSettingsTab = () => {
           maxValue={100}
           onChange={(value) => setAppSettings('messageWidthPercent', value)}
         />
+        <Row>
+          <Row.Icon icon="quote" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.monochromeReplies}
+              onChange={(value) => setAppSettings('monochromeReplies', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.MonochromeReplies')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.MonochromeRepliesSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="stickers" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.roundedStickers}
+              onChange={(value) => setAppSettings('roundedStickers', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.RoundedStickers')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.RoundedStickersSubtitle')}</Row.Subtitle>
+        </Row>
       </Section>
     </>
   );

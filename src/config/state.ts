@@ -248,6 +248,15 @@ export type StateSettings = {
   // to hide (Settings > RabbitGram > Context Menu Items). Filtered out in
   // ChatContextMenu's filterButtons.
   hiddenContextMenuItems: string[],
+  // RabbitGram: pure-CSS toggles, wired in stores/appSettings.ts and styled
+  // in scss/partials/_rabbitgram.scss.
+  monochromeReplies: boolean,
+  roundedStickers: boolean,
+  // RabbitGram: ghost mode extension — don't mark messages as read just
+  // because they scrolled into view; only an explicit interaction (clicking
+  // a message, replying, forwarding) triggers the read call. See bubbles'
+  // readUnreaded / forceReadUnreaded.
+  readOnInteract: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -641,7 +650,10 @@ export const SETTINGS_INIT: StateSettings = {
   messageWidthPercent: 100,
   confirmBeforeSend: false,
   disableNotifyDelay: false,
-  hiddenContextMenuItems: []
+  hiddenContextMenuItems: [],
+  monochromeReplies: false,
+  roundedStickers: false,
+  readOnInteract: false
 };
 
 export const STATE_INIT: State = {

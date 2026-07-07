@@ -21,6 +21,31 @@
   }
 }
 
+// Monochrome replies/quotes: override the peer-color tint used by .quote-like
+// (reply previews, quoted text) with a neutral gray, everywhere it's nested.
+.rabbitgram-monochrome-replies .quote-like {
+  --primary-color: var(--secondary-text-color);
+  --primary-color-rgb: var(--secondary-text-color-rgb, 128, 128, 128);
+}
+
+// Rounded stickers — stock stickers render with square corners.
+.rabbitgram-rounded-stickers .media-sticker-wrapper,
+.rabbitgram-rounded-stickers .media-sticker {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+// Small icon appended next to the sender name when a group message was
+// posted as a linked broadcast channel identity. Element added in bubbles'
+// renderMessage.
+.rabbitgram-channel-badge {
+  display: inline-flex;
+  margin-inline-start: .1875rem;
+  font-size: .8em;
+  vertical-align: middle;
+  opacity: .8;
+}
+
 // Timestamp appended to service messages ("X joined the group" …) — stock
 // tweb doesn't show one at all. Element added in bubbles' renderMessage.
 .service-msg .rabbitgram-service-msg-time {

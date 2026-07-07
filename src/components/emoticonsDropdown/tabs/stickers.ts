@@ -196,7 +196,8 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       icon: 'recent',
       styles: EmoticonsTabStyles.Stickers
     });
-    recentCategory.limit = 20;
+    // RabbitGram: raised from the stock 20 to show more history in the panel.
+    recentCategory.limit = 100;
 
     const clearButton = ButtonIcon('close', {noRipple: true});
     recentCategory.elements.title.append(clearButton);

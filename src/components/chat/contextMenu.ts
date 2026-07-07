@@ -1718,6 +1718,11 @@ export default class ChatContextMenu {
   };
 
   private onReplyClick = async() => {
+    // RabbitGram: readOnInteract — replying counts as an explicit read.
+    if(this.chat.appSettings.readOnInteract) {
+      this.chat.bubbles.forceReadUnreaded();
+    }
+
     const {peerId, message} = this;
     const replyTo = this.chat.input.getChatInputReplyToFromMessage(message);
 
@@ -1880,6 +1885,11 @@ export default class ChatContextMenu {
   };
 
   private onForwardClick = async() => {
+    // RabbitGram: readOnInteract — forwarding counts as an explicit read.
+    if(this.chat.appSettings.readOnInteract) {
+      this.chat.bubbles.forceReadUnreaded();
+    }
+
     if(this.chat.selection.isSelecting) {
       simulateClickEvent(this.chat.selection.selectionForwardBtn);
     } else {

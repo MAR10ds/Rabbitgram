@@ -95,6 +95,7 @@ export default class ChatTopbar {
   private btnGroupCallMenu: HTMLElement;
   private btnSearch: HTMLButtonElement;
   private btnLogFilters: HTMLButtonElement;
+  private btnJumpToStart: HTMLButtonElement;
   private btnMore: HTMLElement;
 
   private autoDeleteBtnMenuOptions: ButtonMenuItemOptionsVerifiable;
@@ -216,6 +217,7 @@ export default class ChatTopbar {
       this.btnCall,
       this.btnGroupCall,
       this.btnGroupCallMenu,
+      this.btnJumpToStart,
       this.btnSearch,
       this.btnLogFilters,
       this.btnMore
@@ -831,6 +833,27 @@ export default class ChatTopbar {
       verify: this.verifyIfCanDeleteChat
     }];
 
+    // RabbitGram: jump straight to the first message of the chat, loading
+    // history from the beginning via the offsetId=1/addOffset=-1 trick
+    // (same one used for jumping to a discussion's root post above).
+    this.btnJumpToStart = ButtonIcon('up');
+    this.attachClickEvent(this.btnJumpToStart, async() => {
+      const historyResult = await this.managers.appMessagesManager.getHistory({
+        peerId: this.peerId,
+        threadId: this.chat.threadId,
+        limit: 1,
+        offsetId: 1,
+        addOffset: -1
+      });
+
+      const firstMid = historyResult.history[0];
+      if(firstMid === undefined) {
+        return;
+      }
+
+      this.chat.setMessageId({lastMsgId: firstMid});
+    });
+
     this.btnSearch = ButtonIcon('search');
     this.attachClickEvent(this.btnSearch, (e) => {
       this.chat.initSearch();
@@ -1363,6 +1386,10 @@ export default class ChatTopbar {
 
       if(this.btnLogFilters) {
         this.btnLogFilters.classList.toggle('hide', this.chat.type !== ChatType.Logs);
+      }
+
+      if(this.btnJumpToStart) {
+        this.btnJumpToStart.classList.toggle('hide', !canHaveSomeButtons);
       }
 
       if(this.avatar !== newAvatar) {

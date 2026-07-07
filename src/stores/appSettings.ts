@@ -34,6 +34,12 @@ const [appSettings, _setAppSettings] = createRoot(() => {
     const percent = store[0].messageWidthPercent || 100;
     document.documentElement.style.setProperty('--rabbitgram-bubble-width-scale', '' + percent / 100);
   });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-monochrome-replies', !!store[0].monochromeReplies);
+  });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-rounded-stickers', !!store[0].roundedStickers);
+  });
 
   return store;
 });
