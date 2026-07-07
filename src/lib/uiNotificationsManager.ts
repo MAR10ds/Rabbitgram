@@ -712,6 +712,12 @@ export class UiNotificationsManager {
       return;
     }
 
+    // RabbitGram: streamer mode — no sounds, no desktop popups, nothing a
+    // stream capture could pick up.
+    if(this.appSettings.streamerMode) {
+      return;
+    }
+
     data.image ||= NOTIFICATION_ICON_PATH;
 
     if(!data.noIncrement) {

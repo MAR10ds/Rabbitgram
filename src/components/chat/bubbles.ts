@@ -141,7 +141,7 @@ import apiManagerProxy from '@lib/apiManagerProxy';
 import {_tgico} from '@helpers/tgico';
 import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
 import addAnchorListener, {UNSAFE_ANCHOR_LINK_TYPES} from '@helpers/addAnchorListener';
-import {formatDate, formatDaysDuration, formatMonthsDuration} from '@helpers/date';
+import {formatDate, formatDaysDuration, formatMonthsDuration, formatTime} from '@helpers/date';
 import {JSX} from 'solid-js';
 import Giveaway, {getGiftAssetName, onGiveawayClick} from '@components/chat/giveaway';
 import PopupGiftLink from '@components/popups/giftLink';
@@ -6897,6 +6897,17 @@ export default class ChatBubbles {
 
         loadPromises.push(promise);
       }
+      // RabbitGram: service message time — stock tweb drops the timestamp on
+      // action messages ("X joined the group" etc.); append a subtle one
+      // inside the pill. Deferred until the action text promises settle so
+      // it lands after the text, not before.
+      if(message._ === 'messageService' && message.date) {
+        const serviceTimeEl = document.createElement('span');
+        serviceTimeEl.classList.add('rabbitgram-service-msg-time');
+        serviceTimeEl.append(formatTime(new Date(message.date * 1000)));
+        Promise.all([...loadPromises]).then(() => s.append(serviceTimeEl), noop);
+      }
+
       bubbleContainer.append(s);
 
       if((message as Message.messageService).pFlags.is_single) { // * Ignore 'Discussion started'

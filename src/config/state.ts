@@ -231,6 +231,16 @@ export type StateSettings = {
   hideSimilarChannels: boolean,
   hideFolderCounters: boolean,
   hideAllChatsFolder: boolean,
+  // RabbitGram: streamer mode — blurs chat list names/avatars and message
+  // area (hover reveals) and mutes all notifications, so nothing private
+  // leaks into a screen capture. CSS in _rabbitgram.scss, notification guard
+  // in uiNotificationsManager.
+  streamerMode: boolean,
+  // RabbitGram: message bubble width as a percentage of the stock width
+  // (60–100), applied via the --rabbitgram-bubble-width-scale CSS variable.
+  messageWidthPercent: number,
+  // RabbitGram: ask for confirmation before sending each composer message.
+  confirmBeforeSend: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -619,7 +629,10 @@ export const SETTINGS_INIT: StateSettings = {
   hideBlockedUsers: false,
   hideSimilarChannels: false,
   hideFolderCounters: false,
-  hideAllChatsFolder: false
+  hideAllChatsFolder: false,
+  streamerMode: false,
+  messageWidthPercent: 100,
+  confirmBeforeSend: false
 };
 
 export const STATE_INIT: State = {

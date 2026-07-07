@@ -27,6 +27,13 @@ const [appSettings, _setAppSettings] = createRoot(() => {
   createEffect(() => {
     document.documentElement.classList.toggle('rabbitgram-hide-all-chats-folder', !!store[0].hideAllChatsFolder);
   });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-streamer-mode', !!store[0].streamerMode);
+  });
+  createEffect(() => {
+    const percent = store[0].messageWidthPercent || 100;
+    document.documentElement.style.setProperty('--rabbitgram-bubble-width-scale', '' + percent / 100);
+  });
 
   return store;
 });

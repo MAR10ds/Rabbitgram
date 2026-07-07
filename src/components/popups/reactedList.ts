@@ -12,7 +12,7 @@ import getUserStatusString from '@components/wrappers/getUserStatusString';
 import {MediaSize, makeMediaSize} from '@helpers/mediaSize';
 import wrapCustomEmoji from '@components/wrappers/customEmoji';
 import SettingSection from '@components/settingSection';
-import {formatFullSentTime} from '@helpers/date';
+import {formatFullSentTimeWithSeconds} from '@helpers/date';
 import {Middleware} from '@helpers/middleware';
 import rootScope from '@lib/rootScope';
 import Icon from '@components/icon';
@@ -67,7 +67,8 @@ export async function processDialogElementForReaction({
     dom.lastMessageSpan.style.cssText = `display: flex !important; align-items: center;`;
     const span = Icon(reaction ? 'reactions' : 'checks', 'reacted-list-checks');
     const fragment = document.createDocumentFragment();
-    c.append(formatFullSentTime(date, false));
+    // RabbitGram: seconds precision instead of the stock minute-only time.
+    c.append(formatFullSentTimeWithSeconds(date));
     fragment.append(span, c);
     replaceContent(dom.lastMessageSpan, fragment);
   } else {

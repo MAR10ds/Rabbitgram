@@ -202,6 +202,20 @@ export function formatTime(date: Date) {
   }).element;
 }
 
+// RabbitGram: like formatFullSentTime, but with seconds precision — used
+// where the exact moment matters (reaction and read times).
+export function formatFullSentTimeWithSeconds(timestamp: number) {
+  const {dateEl} = formatFullSentTimeRaw(timestamp, {capitalize: false});
+  const timeEl = new I18n.IntlDateElement({
+    date: new Date(timestamp * 1000),
+    options: {...formatTimeOptions, second: '2-digit'}
+  }).element;
+
+  const fragment = document.createDocumentFragment();
+  fragment.append(dateEl, ' ', i18n('ScheduleController.at'), ' ', timeEl);
+  return fragment;
+}
+
 MOUNT_CLASS_TO && (MOUNT_CLASS_TO.formatDateAccordingToTodayNew = formatDateAccordingToTodayNew);
 
 export function formatDaysDuration(days: number, bold?: boolean) {

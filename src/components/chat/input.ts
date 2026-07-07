@@ -142,6 +142,7 @@ import PopupStars from '@components/popups/stars';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import {makeMessageMediaInputForSuggestedPost} from '@appManagers/utils/messages/makeMessageMediaInput';
 import showFrozenPopup from '@components/popups/frozen';
+import confirmationPopup from '@components/confirmationPopup';
 import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
 import {setPeerColorToElement} from '@components/peerColors';
 import getMainGroupedMessage from '@lib/appManagers/utils/messages/getMainGroupedMessage';
@@ -4187,6 +4188,21 @@ export default class ChatInput {
     if(chat.type === ChatType.Scheduled && !force && !editMsgId) {
       this.scheduleSending();
       return;
+    }
+
+    // RabbitGram: confirmBeforeSend — one confirmation guards every composer
+    // send path (enter key, send button, edits). `force` sends (scheduled
+    // picker callback) were already confirmed by their own popup.
+    if(this.chat.appSettings.confirmBeforeSend && !force) {
+      try {
+        await confirmationPopup({
+          titleLangKey: 'RabbitGram.ConfirmSend.Title',
+          descriptionLangKey: 'RabbitGram.ConfirmSend.Description',
+          button: {langKey: 'RabbitGram.ConfirmSend.Send'}
+        });
+      } catch(err) {
+        return;
+      }
     }
 
     const {peerId} = chat;

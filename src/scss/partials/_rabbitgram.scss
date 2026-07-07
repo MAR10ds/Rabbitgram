@@ -1,3 +1,5 @@
+@use "../shared" as *;
+
 /*
  * RabbitGram: CSS-only feature toggles. Each rule is gated behind a
  * 'rabbitgram-*' class that stores/appSettings.ts keeps in sync with the
@@ -19,10 +21,49 @@
   }
 }
 
+// Timestamp appended to service messages ("X joined the group" …) — stock
+// tweb doesn't show one at all. Element added in bubbles' renderMessage.
+.service-msg .rabbitgram-service-msg-time {
+  display: inline-block;
+  margin-inline-start: .375rem;
+  font-size: .75em;
+  opacity: .7;
+}
+
 // Hide the "All Chats" folder tab (filter id 0) in both folder UIs.
 .rabbitgram-hide-all-chats-folder {
   .folders-sidebar__folder-item[data-filter-id="0"],
   .menu-horizontal-div-item[data-filter-id="0"] {
     display: none !important;
+  }
+}
+
+// Streamer mode: blur everything a screen capture shouldn't see. The
+// message area un-blurs on hover so the streamer can still peek at the
+// active chat; notification muting lives in uiNotificationsManager.
+.rabbitgram-streamer-mode {
+  .chatlist .user-title,
+  .chatlist .dialog-subtitle,
+  .chatlist .dialog-avatar,
+  .chat-info .peer-title,
+  .chat-info .avatar {
+    filter: blur(6px);
+  }
+
+  .bubbles {
+    filter: blur(10px);
+    transition: filter .2s ease-out;
+
+    &:hover {
+      filter: none;
+    }
+  }
+}
+
+// Configurable bubble width: scales the stock 85% desktop cap by
+// --rabbitgram-bubble-width-scale (0.6–1, set from the settings slider).
+.bubble:not(.service) {
+  @include respond-to(not-handhelds) {
+    --max-width: calc(85% * var(--rabbitgram-bubble-width-scale, 1));
   }
 }

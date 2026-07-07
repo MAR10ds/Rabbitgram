@@ -5,6 +5,7 @@ import {i18n} from '@lib/langPack';
 import {useAppSettings} from '@stores/appSettings';
 import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
 import {AppRabbitGramMessageFiltersTab} from '@components/solidJsTabs/tabs';
+import RangeSettingSelector from '@components/rangeSettingSelector';
 import {ConfettiContainer, ConfettiRef} from '@components/confetti';
 import {toastNew} from '@components/toast';
 import styles from './rabbitgramSettings.module.scss';
@@ -195,6 +196,18 @@ const RabbitGramSettingsTab = () => {
           <Row.Subtitle>{i18n('RabbitGram.Settings.GhostSendDelaySubtitle')}</Row.Subtitle>
         </Row>
         <Row>
+          <Row.Icon icon="send" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.confirmBeforeSend}
+              onChange={(value) => setAppSettings('confirmBeforeSend', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.ConfirmBeforeSend')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.ConfirmBeforeSendSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
           <Row.Icon icon="eye2" />
           <Row.CheckboxFieldToggle>
             <CheckboxFieldTsx
@@ -316,6 +329,27 @@ const RabbitGramSettingsTab = () => {
           <Row.Title>{i18n('RabbitGram.Settings.HideAllChatsFolder')}</Row.Title>
           <Row.Subtitle>{i18n('RabbitGram.Settings.HideAllChatsFolderSubtitle')}</Row.Subtitle>
         </Row>
+        <Row>
+          <Row.Icon icon="videochat" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.streamerMode}
+              onChange={(value) => setAppSettings('streamerMode', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.StreamerMode')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.StreamerModeSubtitle')}</Row.Subtitle>
+        </Row>
+        <RangeSettingSelector
+          textLeft={i18n('RabbitGram.Settings.MessageWidth')}
+          textRight={(value) => value + '%'}
+          step={5}
+          value={appSettings.messageWidthPercent}
+          minValue={60}
+          maxValue={100}
+          onChange={(value) => setAppSettings('messageWidthPercent', value)}
+        />
       </Section>
     </>
   );
