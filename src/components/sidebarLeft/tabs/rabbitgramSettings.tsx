@@ -4,7 +4,7 @@ import CheckboxFieldTsx from '@components/checkboxFieldTsx';
 import {i18n} from '@lib/langPack';
 import {useAppSettings} from '@stores/appSettings';
 import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {AppRabbitGramMessageFiltersTab} from '@components/solidJsTabs/tabs';
+import {AppRabbitGramMessageFiltersTab, AppRabbitGramContextMenuTab} from '@components/solidJsTabs/tabs';
 import RangeSettingSelector from '@components/rangeSettingSelector';
 import {ConfettiContainer, ConfettiRef} from '@components/confetti';
 import {toastNew} from '@components/toast';
@@ -208,6 +208,18 @@ const RabbitGramSettingsTab = () => {
           <Row.Subtitle>{i18n('RabbitGram.Settings.ConfirmBeforeSendSubtitle')}</Row.Subtitle>
         </Row>
         <Row>
+          <Row.Icon icon="unmute" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.disableNotifyDelay}
+              onChange={(value) => setAppSettings('disableNotifyDelay', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.DisableNotifyDelay')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.DisableNotifyDelaySubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
           <Row.Icon icon="eye2" />
           <Row.CheckboxFieldToggle>
             <CheckboxFieldTsx
@@ -261,6 +273,11 @@ const RabbitGramSettingsTab = () => {
           <Row.Icon icon="filter" />
           <Row.Title>{i18n('RabbitGram.MessageFilters.Title')}</Row.Title>
           <Row.Subtitle>{i18n('RabbitGram.MessageFilters.MenuSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row clickable={() => tab.slider.createTab(AppRabbitGramContextMenuTab).open()}>
+          <Row.Icon icon="more" />
+          <Row.Title>{i18n('RabbitGram.ContextMenuCustomize.Title')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.ContextMenuCustomize.MenuSubtitle')}</Row.Subtitle>
         </Row>
       </Section>
       <Section name="RabbitGram.Settings.SoundSectionTitle" caption="RabbitGram.Settings.SoundSectionCaption">

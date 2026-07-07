@@ -71,6 +71,8 @@ import wrapDraftText from '@lib/richTextProcessor/wrapDraftText';
 import PopupStarReaction from '@components/popups/starReaction';
 import getUniqueCustomEmojisFromMessage from '@appManagers/utils/messages/getUniqueCustomEmojisFromMessage';
 import getPeerTitle from '@components/wrappers/getPeerTitle';
+import {downloadMessageShot} from '@lib/rabbitgram/messageShot';
+import {appSettings} from '@stores/appSettings';
 import {getFullDate} from '@helpers/date/getFullDate';
 import PaidMessagesInterceptor, {PAYMENT_REJECTED} from '@components/chat/paidMessagesInterceptor';
 import {MySponsoredPeer} from '@appManagers/appChatsManager';
@@ -554,6 +556,12 @@ export default class ChatContextMenu {
     return filterAsync(buttons, async(button) => {
       let good: boolean;
 
+      // RabbitGram: items the user hid via Settings > RabbitGram > Context
+      // Menu Items (matched by lang-pack key).
+      if(appSettings.hiddenContextMenuItems?.includes(button.text as string)) {
+        return false;
+      }
+
       if((this.isSponsored && !button.isSponsored) || (!this.isSponsored && button.isSponsored)) {
         return false;
       }
@@ -998,6 +1006,16 @@ export default class ChatContextMenu {
       text: 'MediaViewer.Context.Download',
       onClick: () => ChatContextMenu.onDownloadClick(this.message, this.noForwards, this.chat.container),
       verify: () => ChatContextMenu.canDownload(this.message, this.target, this.noForwards, this.chat.container)
+    }, {
+      // RabbitGram: render this message as a shareable PNG card
+      icon: 'camera',
+      text: 'RabbitGram.MessageShot.MenuButton',
+      onClick: async() => {
+        const message = this.message as Message.message;
+        const title = await getPeerTitle({peerId: message.fromId || message.peerId, plainText: true, managers: this.managers, useManagers: true});
+        downloadMessageShot({title, text: message.message, date: message.date});
+      },
+      verify: () => this.message?._ === 'message' && !!(this.message as Message.message).message
     }, {
       icon: 'checkretract',
       text: 'Chat.Poll.Unvote',

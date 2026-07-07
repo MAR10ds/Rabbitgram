@@ -20,6 +20,7 @@ import confirmationPopup from '@components/confirmationPopup';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import {wrapFormattedDuration} from './wrapDuration';
 import formatDuration from '@helpers/formatDuration';
+import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
 
 export type KeyboardButtonHandler = {
   text: DocumentFragment | HTMLElement,
@@ -191,6 +192,27 @@ export function getKeyboardButtonHandler({
     }
 
     case 'keyboardButtonCallback': {
+      // RabbitGram: long-press / right-click a callback button to inspect its
+      // raw payload instead of triggering it — handy for bot development.
+      // The data is also copied to the clipboard.
+      refCallbacks.push((ref) => {
+        attachContextMenuListener({
+          element: ref,
+          callback: (e) => {
+            cancelEvent(e);
+            let data: string;
+            try {
+              data = new TextDecoder().decode(button.data as Uint8Array);
+            } catch(err) {
+              data = '' + button.data;
+            }
+
+            copyTextToClipboard(data);
+            toastNew({langPackKey: 'RabbitGram.CallbackData.Toast', langPackArguments: [data]});
+          }
+        });
+      });
+
       onClick = () => {
         rootScope.managers.appInlineBotsManager.callbackButtonClick(peerId, messageMid, button)
         .then((callbackAnswer) => {

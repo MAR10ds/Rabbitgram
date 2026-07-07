@@ -241,6 +241,13 @@ export type StateSettings = {
   messageWidthPercent: number,
   // RabbitGram: ask for confirmation before sending each composer message.
   confirmBeforeSend: boolean,
+  // RabbitGram: don't notify only when the active chat is focused — with
+  // this on, every notification fires instantly regardless of activity.
+  disableNotifyDelay: boolean,
+  // RabbitGram: lang-pack keys of message context menu items the user chose
+  // to hide (Settings > RabbitGram > Context Menu Items). Filtered out in
+  // ChatContextMenu's filterButtons.
+  hiddenContextMenuItems: string[],
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -632,7 +639,9 @@ export const SETTINGS_INIT: StateSettings = {
   hideAllChatsFolder: false,
   streamerMode: false,
   messageWidthPercent: 100,
-  confirmBeforeSend: false
+  confirmBeforeSend: false,
+  disableNotifyDelay: false,
+  hiddenContextMenuItems: []
 };
 
 export const STATE_INIT: State = {

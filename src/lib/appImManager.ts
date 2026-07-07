@@ -130,7 +130,7 @@ import PaidMessagesInterceptor, {PAYMENT_REJECTED} from '@components/chat/paidMe
 import IS_WEB_APP_BROWSER_SUPPORTED from '@environment/webAppBrowserSupport';
 import createChatAudio, {ChatAudioController} from '@components/chat/audio';
 import AudioAssetPlayer from '@helpers/audioAssetPlayer';
-import {useAppSettings} from '@stores/appSettings';
+import {appSettings, useAppSettings} from '@stores/appSettings';
 import {MyMessage} from '@appManagers/appMessagesManager';
 import {canUploadAsWhenEditing} from '@components/chat/utils';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
@@ -687,7 +687,11 @@ export class AppImManager extends EventListenerBase<{
         const isForum = await managers.appPeersManager.isForum(options.message.peerId);
         const threadId = getMessageThreadId(options.message, {isForum});
 
+        // RabbitGram: disableNotifyDelay — deliver every notification
+        // instantly, even for the chat that's open and focused (the only
+        // client-side suppression tweb applies).
         if(
+          !appSettings.disableNotifyDelay &&
           this.chat.peerId === options.message.peerId &&
           this.chat.threadId === threadId &&
           !idleController.isIdle
