@@ -103,6 +103,12 @@ export const AppRabbitGramSettingsTab =
     getComponentModule: () => import('../sidebarLeft/tabs/rabbitgramSettings')
   });
 
+export const AppRabbitGramMessageFiltersTab =
+  scaffoldSolidJSTab({
+    title: 'RabbitGram.MessageFilters.Title',
+    getComponentModule: () => import('../sidebarLeft/tabs/rabbitgramMessageFilters')
+  });
+
 
 type AppAdminRecentActionsTabPayload = {
   channelId: ChatId;

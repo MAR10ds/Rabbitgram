@@ -48,8 +48,18 @@ export class AppProfileManager extends AppManager {
   private fullExpiration: {[peerId: PeerId]: number} = {};
   private typingsInPeer: {[key: string]: UserTyping[]};
   private peerSettings: {[peerId: PeerId]: PeerSettings};
+  // RabbitGram: mirrors settings.hideBlockedUsers so onUpdateUserTyping can
+  // drop blocked users' typing indicators synchronously.
+  private hideBlockedUsersEnabled = false;
 
   protected after() {
+    this.appStateManager.getState().then((state) => {
+      this.hideBlockedUsersEnabled = !!state.settings?.hideBlockedUsers;
+    });
+    this.rootScope.addEventListener('settings_updated', ({settings}) => {
+      this.hideBlockedUsersEnabled = !!settings?.hideBlockedUsers;
+    });
+
     this.apiUpdatesManager.addMultipleEventsListeners({
       updateChatParticipants: this.onUpdateChatParticipants,
 
@@ -1144,6 +1154,13 @@ export class AppProfileManager extends AppManager {
       (update as Update.updateUserTyping).user_id.toPeerId() :
       this.appPeersManager.getPeerId((update as Update.updateChatUserTyping).from_id);
     if(this.appPeersManager.peerId === fromId || update.action._ === 'speakingInGroupCallAction') {
+      return;
+    }
+
+    // RabbitGram: hideBlockedUsers — no "typing…" from someone you've
+    // blocked. Best-effort: only catches users whose full profile is cached,
+    // which is the common case since blocking happens through the profile.
+    if(this.hideBlockedUsersEnabled && fromId.isUser() && this.usersFull[fromId.toUserId()]?.pFlags?.blocked) {
       return;
     }
 

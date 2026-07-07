@@ -3,6 +3,8 @@ import Section from '@components/section';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
 import {i18n} from '@lib/langPack';
 import {useAppSettings} from '@stores/appSettings';
+import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import {AppRabbitGramMessageFiltersTab} from '@components/solidJsTabs/tabs';
 import {ConfettiContainer, ConfettiRef} from '@components/confetti';
 import {toastNew} from '@components/toast';
 import styles from './rabbitgramSettings.module.scss';
@@ -28,6 +30,7 @@ const EASTER_EGG_WINDOW_MS = 3000;
 
 const RabbitGramSettingsTab = () => {
   const [appSettings, setAppSettings] = useAppSettings();
+  const [tab] = useSuperTab();
   const [customSoundName, setCustomSoundName] = createSignal(
     getCustomNotificationSound()?.name ?? null
   );
@@ -202,6 +205,49 @@ const RabbitGramSettingsTab = () => {
           </Row.CheckboxFieldToggle>
           <Row.Title>{i18n('RabbitGram.Settings.KeepViewOnceMedia')}</Row.Title>
           <Row.Subtitle>{i18n('RabbitGram.Settings.KeepViewOnceMediaSubtitle')}</Row.Subtitle>
+        </Row>
+      </Section>
+      <Section name="RabbitGram.Settings.ContentSectionTitle">
+        <Row>
+          <Row.Icon icon="ads" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.hideSponsoredMessages}
+              onChange={(value) => setAppSettings('hideSponsoredMessages', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.HideSponsoredMessages')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.HideSponsoredMessagesSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="forward" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.noForwardRestrictions}
+              onChange={(value) => setAppSettings('noForwardRestrictions', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.NoForwardRestrictions')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.NoForwardRestrictionsSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="deleteuser" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.hideBlockedUsers}
+              onChange={(value) => setAppSettings('hideBlockedUsers', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.HideBlockedUsers')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.HideBlockedUsersSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row clickable={() => tab.slider.createTab(AppRabbitGramMessageFiltersTab).open()}>
+          <Row.Icon icon="filter" />
+          <Row.Title>{i18n('RabbitGram.MessageFilters.Title')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.MessageFilters.MenuSubtitle')}</Row.Subtitle>
         </Row>
       </Section>
       <Section name="RabbitGram.Settings.SoundSectionTitle" caption="RabbitGram.Settings.SoundSectionCaption">

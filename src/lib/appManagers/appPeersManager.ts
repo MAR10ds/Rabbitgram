@@ -22,6 +22,19 @@ import callbackify from '@helpers/callbackify';
 
 export type PeerType = 'channel' | 'chat' | 'megagroup' | 'group' | 'saved' | 'savedDialog' | 'monoforum' | 'monoforum_thread' | 'botforum_thread';
 export class AppPeersManager extends AppManager {
+  // RabbitGram: mirrors settings.noForwardRestrictions so the synchronous
+  // noForwards() check doesn't need to await state.
+  private noForwardRestrictionsEnabled = false;
+
+  protected after() {
+    this.appStateManager.getState().then((state) => {
+      this.noForwardRestrictionsEnabled = !!state.settings?.noForwardRestrictions;
+    });
+    this.rootScope.addEventListener('settings_updated', ({settings}) => {
+      this.noForwardRestrictionsEnabled = !!settings?.noForwardRestrictions;
+    });
+  }
+
   public get peerId() {
     return this.appUsersManager.userId.toPeerId();
   }
@@ -346,6 +359,11 @@ export class AppPeersManager extends AppManager {
   }
 
   public noForwards(peerId: PeerId) {
+    // RabbitGram: noForwardRestrictions — pretend no chat is "protected".
+    if(this.noForwardRestrictionsEnabled) {
+      return false;
+    }
+
     if(peerId.isUser()) {
       const userFull = this.appProfileManager.getCachedFullUser(peerId.toUserId());
       return !!(userFull?.pFlags?.noforwards_my_enabled || userFull?.pFlags?.noforwards_peer_enabled);

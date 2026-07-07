@@ -127,6 +127,8 @@ import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUserna
 import SwipeHandler from '@components/swipeHandler';
 import getSelectedText from '@helpers/dom/getSelectedText';
 import {createStoriesViewerWithPeer} from '@components/stories/viewer';
+import {isHiddenBlockedPeer} from '@lib/rabbitgram/blockedUsers';
+import {messageMatchesFilters} from '@lib/rabbitgram/messageFilters';
 import {render} from 'solid-js/web';
 import {createRoot, createEffect, createSignal, Signal, onCleanup, batch} from 'solid-js';
 import {StoryPreview, wrapStoryMedia} from '@components/stories/preview';
@@ -6211,6 +6213,13 @@ export default class ChatBubbles {
     const loadPromises: Promise<any>[] = [...additionalPromises];
 
     const isMessage = message._ === 'message';
+
+    // RabbitGram: fully hidden messages — blocked author (hideBlockedUsers)
+    // or text matching one of the user's message filters. Returning early
+    // here routes the mid into skippedMids, same as a hidden album part.
+    if(isHiddenBlockedPeer(message.fromId) || (isMessage && messageMatchesFilters(message.message))) {
+      return;
+    }
     const hasReactions = message._ === 'message' || (message._ === 'messageService' && message.pFlags.reactions_are_possible)
     const groupedId = isMessage && message.grouped_id;
     let groupedMids: number[], reactionsMessage: Message.message | Message.messageService;
@@ -9352,7 +9361,16 @@ export default class ChatBubbles {
   }
 
   public canForward(message: Message.message | Message.messageService) {
-    if(message?._ !== 'message' || message.pFlags.noforwards) {
+    if(message?._ !== 'message') {
+      return false;
+    }
+
+    // RabbitGram: noForwardRestrictions — ignore protected-content flags.
+    if(this.chat.appSettings.noForwardRestrictions) {
+      return true;
+    }
+
+    if(message.pFlags.noforwards) {
       return false;
     }
 

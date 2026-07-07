@@ -614,6 +614,9 @@ export class AppMessagesManager extends AppManager {
   // being active — when true, outgoing text messages are held for 5s before
   // the API call actually fires. See sendText.
   private ghostSendDelayEnabled = false;
+  // RabbitGram: mirrors settings.noForwardRestrictions — when true, the
+  // message-level noforwards flag is ignored by canForward.
+  private noForwardRestrictionsEnabled = false;
   // RabbitGram: local, per-peer log of captured view-once media (see
   // captureViewOnceMediaIfEnabled / getViewOnceMedia).
   private viewOnceMediaStorage: AppStorage<Record<PeerId, ViewOnceMediaRecord[]>, AccountDatabase>;
@@ -691,6 +694,7 @@ export class AppMessagesManager extends AppManager {
 
     const updateGhostFlags = (settings: StateSettings | undefined) => {
       this.hideReadStatusEnabled = !!settings?.hideReadStatus;
+      this.noForwardRestrictionsEnabled = !!settings?.noForwardRestrictions;
       this.ghostSendDelayEnabled = !!(settings?.ghostSendDelay && (
         settings.hideOnlineStatus ||
         settings.hideReadStatus ||
@@ -10733,7 +10737,7 @@ export class AppMessagesManager extends AppManager {
 
   public canForward(message: Message.message | Message.messageService) {
     return message?._ === 'message' &&
-      !(message as Message.message).pFlags.noforwards &&
+      (this.noForwardRestrictionsEnabled || !(message as Message.message).pFlags.noforwards) &&
       !(message.media as MessageMedia.messageMediaPhoto)?.ttl_seconds &&
       !this.appPeersManager.noForwards(message.peerId);
   }
@@ -11052,6 +11056,14 @@ export class AppMessagesManager extends AppManager {
     //     }
     //   ]
     // });
+
+    // RabbitGram: ad-free — never even fetch sponsored messages.
+    const state = await this.appStateManager.getState();
+    if(state.settings?.hideSponsoredMessages) {
+      return Promise.resolve({
+        _: 'messages.sponsoredMessagesEmpty'
+      });
+    }
 
     // * don't show sponsored messages in own channels
     if(!peerId.isUser() && await this.canSendToPeer(peerId)) {

@@ -215,6 +215,17 @@ export type StateSettings = {
   // cancel an accidental send that would reveal activity. See
   // appMessagesManager's sendMessage.
   ghostSendDelay: boolean,
+  // RabbitGram: never fetch sponsored messages, so channels render ad-free.
+  // On by default. See appMessagesManager's getSponsoredMessage.
+  hideSponsoredMessages: boolean,
+  // RabbitGram: ignore the "protected content" (noforwards) flag on chats and
+  // messages — copy/forward/download work as in unprotected chats. See
+  // appPeersManager's noForwards and canSaveMessageMedia.
+  noForwardRestrictions: boolean,
+  // RabbitGram: don't render messages or typing indicators from users you've
+  // blocked, instead of showing them like stock Telegram does. See
+  // lib/rabbitgram/blockedUsers.ts and bubbles' renderMessage.
+  hideBlockedUsers: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -597,7 +608,10 @@ export const SETTINGS_INIT: StateSettings = {
   keepViewOnceMedia: false,
   autoGoOffline: false,
   dontReadStories: false,
-  ghostSendDelay: false
+  ghostSendDelay: false,
+  hideSponsoredMessages: true,
+  noForwardRestrictions: false,
+  hideBlockedUsers: false
 };
 
 export const STATE_INIT: State = {

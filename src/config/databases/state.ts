@@ -2,7 +2,7 @@ import type {Database} from '.';
 import {ActiveAccountNumber} from '@lib/accounts/types';
 import {MOUNT_CLASS_TO} from '@config/debug';
 
-export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs' | 'viewOnceMedia' | 'customNotificationSound'>;
+export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'deletedMessages' | 'editedMessages' | 'snoozedDialogs' | 'viewOnceMedia' | 'customNotificationSound' | 'messageFilters'>;
 export type CommonDatabase = Database<'session' | 'localStorage'>;
 
 export const getOldDatabaseState = (): AccountDatabase => ({
@@ -48,7 +48,7 @@ export const getDatabaseState = (
   accountNumber: ActiveAccountNumber
 ): AccountDatabase => ({
   name: `tweb-account-${accountNumber}`,
-  version: 14,
+  version: 15,
   stores: [
     {
       name: 'session',
@@ -107,6 +107,12 @@ export const getDatabaseState = (
       // base64 data URL. See lib/rabbitgram/customNotificationSound.ts.
       name: 'customNotificationSound',
       encryptedName: 'customNotificationSound__encrypted'
+    },
+    {
+      // RabbitGram: user-defined text/regex patterns — messages matching any
+      // of them aren't rendered. See lib/rabbitgram/messageFilters.ts.
+      name: 'messageFilters',
+      encryptedName: 'messageFilters__encrypted'
     }
   ]
 });
