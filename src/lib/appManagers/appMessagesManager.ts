@@ -6562,6 +6562,23 @@ export class AppMessagesManager extends AppManager {
     return historyStorage.readPromise = apiPromise;
   }
 
+  // RabbitGram: mark every cached dialog as read — both message counters and
+  // manual unread marks. Uses the regular readHistory path, so the
+  // hideReadStatus setting keeps its effect (badges clear locally, no read
+  // receipts reach the server).
+  public readAllDialogs() {
+    const dialogs = this.dialogsStorage.getCachedDialogs(true);
+    for(const dialog of dialogs) {
+      if(dialog.unread_count) {
+        this.readHistory({peerId: dialog.peerId, maxId: dialog.top_message, force: true});
+      }
+
+      if(dialog.pFlags?.unread_mark) {
+        this.markDialogUnread({peerId: dialog.peerId, read: true});
+      }
+    }
+  }
+
   public readAllHistory(peerId: PeerId, threadId?: number, force = false) {
     const historyStorage = this.getHistoryStorage(peerId, threadId);
     if(historyStorage.maxId) {

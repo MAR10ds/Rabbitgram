@@ -280,6 +280,42 @@ const RabbitGramSettingsTab = () => {
           <Row.Title>{i18n('RabbitGram.Settings.CompactChatList')}</Row.Title>
           <Row.Subtitle>{i18n('RabbitGram.Settings.CompactChatListSubtitle')}</Row.Subtitle>
         </Row>
+        <Row>
+          <Row.Icon icon="channel" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.hideSimilarChannels}
+              onChange={(value) => setAppSettings('hideSimilarChannels', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.HideSimilarChannels')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.HideSimilarChannelsSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="folder" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.hideFolderCounters}
+              onChange={(value) => setAppSettings('hideFolderCounters', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.HideFolderCounters')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.HideFolderCountersSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="chatsplaceholder" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.hideAllChatsFolder}
+              onChange={(value) => setAppSettings('hideAllChatsFolder', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.HideAllChatsFolder')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.HideAllChatsFolderSubtitle')}</Row.Subtitle>
+        </Row>
       </Section>
     </>
   );

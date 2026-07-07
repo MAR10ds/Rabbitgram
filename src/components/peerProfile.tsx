@@ -729,6 +729,37 @@ PeerProfile.Username = () => {
   );
 };
 
+// RabbitGram: numeric peer ID row — handy for bot development and debugging;
+// click copies the bare ID.
+PeerProfile.PeerIdRow = () => {
+  const context = useContext(PeerProfileContext);
+  const {i18n, toastNew} = useHotReloadGuard();
+
+  const id = createMemo(() => {
+    const peerId = context.peerId;
+    if(!peerId) {
+      return '';
+    }
+
+    return '' + (peerId.isUser() ? peerId : peerId.toChatId());
+  });
+
+  const onClick = () => {
+    copyTextToClipboard(id());
+    toastNew({langPackKey: 'TextCopied'});
+  };
+
+  return (
+    <Show when={id()}>
+      <Row clickable={onClick}>
+        <Row.Icon icon="info" />
+        <Row.Title>{id()}</Row.Title>
+        <Row.Subtitle>{i18n('RabbitGram.Profile.PeerId')}</Row.Subtitle>
+      </Row>
+    </Show>
+  );
+};
+
 PeerProfile.QrButton = () => {
   const context = useContext(PeerProfileContext);
   const {showMyQrCodePopup, rootScope} = useHotReloadGuard();
@@ -1489,6 +1520,7 @@ PeerProfile.MainSection = () => {
       <Show when={!(context.isBotforum && context.threadId)}>
         <PeerProfile.Phone />
         <PeerProfile.Username />
+        <PeerProfile.PeerIdRow />
         <PeerProfile.Location />
         <PeerProfile.Bio />
         <PeerProfile.Link />

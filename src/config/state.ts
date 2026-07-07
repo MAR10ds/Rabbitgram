@@ -226,6 +226,11 @@ export type StateSettings = {
   // blocked, instead of showing them like stock Telegram does. See
   // lib/rabbitgram/blockedUsers.ts and bubbles' renderMessage.
   hideBlockedUsers: boolean,
+  // RabbitGram: pure-CSS toggles, wired in stores/appSettings.ts and styled
+  // in scss/partials/_rabbitgram.scss.
+  hideSimilarChannels: boolean,
+  hideFolderCounters: boolean,
+  hideAllChatsFolder: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -611,7 +616,10 @@ export const SETTINGS_INIT: StateSettings = {
   ghostSendDelay: false,
   hideSponsoredMessages: true,
   noForwardRestrictions: false,
-  hideBlockedUsers: false
+  hideBlockedUsers: false,
+  hideSimilarChannels: false,
+  hideFolderCounters: false,
+  hideAllChatsFolder: false
 };
 
 export const STATE_INIT: State = {

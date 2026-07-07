@@ -153,6 +153,17 @@ export class AppSidebarLeft extends SidebarSlider {
     const sidebarHeader = this.sidebarEl.querySelector('.item-main .sidebar-header');
     sidebarHeader.append(this.inputSearch.container);
 
+    // RabbitGram: "read all chats" — one click clears the unread badge of
+    // every cached dialog. With Hide Read Status on, this stays local-only
+    // (readHistory skips the server call), so it doubles as a badge cleaner
+    // that doesn't leak read receipts.
+    const readAllBtn = ButtonIcon('readchats sidebar-read-all-button');
+    attachClickEvent(readAllBtn, () => {
+      this.managers.appMessagesManager.readAllDialogs();
+      toastNew({langPackKey: 'RabbitGram.ReadAll.Toast'});
+    });
+    sidebarHeader.append(readAllBtn);
+
     this.backBtn = this.sidebarEl.querySelector('.sidebar-back-button') as HTMLButtonElement;
 
     this.toolsBtn = this.createToolsMenu();

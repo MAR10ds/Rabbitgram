@@ -17,6 +17,17 @@ const [appSettings, _setAppSettings] = createRoot(() => {
     document.documentElement.classList.toggle('rabbitgram-compact-chatlist', !!store[0].compactChatList);
   });
 
+  // RabbitGram: more CSS-only toggles, rules in scss/partials/_rabbitgram.scss.
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-hide-similar-channels', !!store[0].hideSimilarChannels);
+  });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-hide-folder-counters', !!store[0].hideFolderCounters);
+  });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-hide-all-chats-folder', !!store[0].hideAllChatsFolder);
+  });
+
   return store;
 });
 

@@ -1,0 +1,28 @@
+/*
+ * RabbitGram: CSS-only feature toggles. Each rule is gated behind a
+ * 'rabbitgram-*' class that stores/appSettings.ts keeps in sync with the
+ * corresponding setting on <html> — same wiring as the compact chat list
+ * (see _chatlist.scss).
+ */
+
+// Hide the "Similar channels" suggestion block inside channel chats.
+.rabbitgram-hide-similar-channels .similar-channels-container {
+  display: none !important;
+}
+
+// Hide unread counters on folders — both the vertical folders sidebar and
+// the horizontal folder tab strip.
+.rabbitgram-hide-folder-counters {
+  .folders-sidebar__folder-item-badge,
+  .menu-horizontal-div-item .badge {
+    display: none !important;
+  }
+}
+
+// Hide the "All Chats" folder tab (filter id 0) in both folder UIs.
+.rabbitgram-hide-all-chats-folder {
+  .folders-sidebar__folder-item[data-filter-id="0"],
+  .menu-horizontal-div-item[data-filter-id="0"] {
+    display: none !important;
+  }
+}

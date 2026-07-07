@@ -4902,6 +4902,16 @@ const lang = {
   'RabbitGram.MessageFilters.Placeholder': 'Text or regular expression',
   'RabbitGram.MessageFilters.ClickToRemove': 'Click to remove this filter',
   'RabbitGram.MessageFilters.Empty': 'No filters yet.',
+
+  // RabbitGram: profile ID row, read-all button, folder/appearance toggles
+  'RabbitGram.Profile.PeerId': 'ID (click to copy)',
+  'RabbitGram.ReadAll.Toast': 'All chats marked as read.',
+  'RabbitGram.Settings.HideSimilarChannels': 'Hide Similar Channels',
+  'RabbitGram.Settings.HideSimilarChannelsSubtitle': 'Don’t show the “Similar channels” suggestion block when joining channels.',
+  'RabbitGram.Settings.HideFolderCounters': 'Hide Folder Counters',
+  'RabbitGram.Settings.HideFolderCountersSubtitle': 'Don’t show unread badges on folder tabs.',
+  'RabbitGram.Settings.HideAllChatsFolder': 'Hide "All Chats" Folder',
+  'RabbitGram.Settings.HideAllChatsFolderSubtitle': 'Remove the "All" tab from the folder list — useful if you sort everything into folders.',
   'RabbitGram.Settings.CompactChatList': 'Compact Chat List',
   'RabbitGram.Settings.CompactChatListSubtitle': 'Hide the message preview line in the chat list to fit more chats on screen.',
   'RabbitGram.Settings.SoundSectionTitle': 'Notification Sound',
