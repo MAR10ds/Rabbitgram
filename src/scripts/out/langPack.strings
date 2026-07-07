@@ -4248,6 +4248,16 @@
 "RabbitGram.Settings.HideReadStatusSubtitle" = "Don’t send read receipts (message and voice/video “played” ticks) — your own unread badges still clear normally.";
 "RabbitGram.Settings.CompactChatList" = "Compact Chat List";
 "RabbitGram.Settings.CompactChatListSubtitle" = "Hide the message preview line in the chat list to fit more chats on screen.";
+"RabbitGram.Settings.SoundSectionTitle" = "Notification Sound";
+"RabbitGram.Settings.SoundSectionCaption" = "Replace the default notification sound with your own audio file (MP3, OGG, WAV — up to 5 MB).";
+"RabbitGram.Settings.Sound.Upload" = "Choose Sound File";
+"RabbitGram.Settings.Sound.Default" = "Default";
+"RabbitGram.Settings.Sound.Preview" = "Preview Sound";
+"RabbitGram.Settings.Sound.Remove" = "Remove Custom Sound";
+"RabbitGram.Settings.Sound.Saved" = "Custom notification sound saved.";
+"RabbitGram.Settings.Sound.Removed" = "Custom notification sound removed.";
+"RabbitGram.Settings.Sound.TooLarge" = "File too large. Maximum size is 5 MB.";
+"RabbitGram.Settings.Sound.NoCustom" = "No custom sound set yet.";
 "RabbitGram.Settings.AppearanceSectionTitle" = "Appearance";
 "RabbitGram.KeyboardShortcuts.SwitchAccount" = "Switch to Account 1-4";
 "RabbitGram.KeyboardShortcuts.SwitchAccountHint" = "Jumps straight to that account if it’s logged in — reloads the app.";

@@ -201,6 +201,20 @@ export type StateSettings = {
   // opt-in choice rather than a default. See appMessagesManager's
   // captureViewOnceMediaIfEnabled / getViewOnceMedia.
   keepViewOnceMedia: boolean,
+  // RabbitGram: after any action makes us go online (sending a message etc.),
+  // automatically send account.updateStatus({offline: true}) 5 seconds later,
+  // so the online flash is as short as possible. See appUsersManager's
+  // updateMyOnlineStatus.
+  autoGoOffline: boolean,
+  // RabbitGram: don't tell the server we've viewed stories — peers never see
+  // us in their story viewers list, while the local "unread ring" still
+  // clears normally. See appStoriesManager's readStories.
+  dontReadStories: boolean,
+  // RabbitGram: when any ghost-mode flag is active, hold outgoing text
+  // messages for 5 seconds before actually sending, leaving a window to
+  // cancel an accidental send that would reveal activity. See
+  // appMessagesManager's sendMessage.
+  ghostSendDelay: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -580,7 +594,10 @@ export const SETTINGS_INIT: StateSettings = {
   hideOnlineStatus: false,
   hideReadStatus: false,
   compactChatList: false,
-  keepViewOnceMedia: false
+  keepViewOnceMedia: false,
+  autoGoOffline: false,
+  dontReadStories: false,
+  ghostSendDelay: false
 };
 
 export const STATE_INIT: State = {

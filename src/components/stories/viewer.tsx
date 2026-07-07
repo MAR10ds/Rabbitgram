@@ -97,7 +97,7 @@ import showTooltip from '@components/tooltip';
 import safeWindowOpen from '@helpers/dom/safeWindowOpen';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
 import {showStoryReport} from '@components/popups/reportAd';
-import {useAppSettings} from '@stores/appSettings';
+import {appSettings, useAppSettings} from '@stores/appSettings';
 import showStoriesStealthModePopup from '@components/popups/storiesStealthMode';
 import {useAppConfig} from '@stores/appState';
 import {wrapStoriesStealthModeDuration} from '@components/wrappers/wrapDuration';
@@ -3428,6 +3428,27 @@ export const createStoriesViewer = (
         </StoriesProvider>
       );
     });
+  }
+
+  // RabbitGram: with ghost mode on, opening a story is the one action the
+  // user probably doesn't want to do by accident — every viewer creation
+  // funnels through this return, so gate the mount behind a confirmation.
+  // Cancel routes through onExit so callers can undo their opening animation.
+  if(appSettings.hideOnlineStatus || appSettings.dontReadStories) {
+    const [confirmed, setConfirmed] = createSignal(false);
+    confirmationPopup({
+      titleLangKey: 'RabbitGram.StoryAlert.Title',
+      descriptionLangKey: 'RabbitGram.StoryAlert.Description',
+      button: {langKey: 'RabbitGram.StoryAlert.Open'}
+    }).then(() => setConfirmed(true), () => props.onExit?.());
+
+    return (
+      <Show when={confirmed()}>
+        <Portal mount={document.getElementById('stories-viewer')}>
+          <StoriesViewer {...props} />
+        </Portal>
+      </Show>
+    );
   }
 
   return (

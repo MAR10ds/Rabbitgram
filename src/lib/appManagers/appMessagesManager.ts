@@ -10,6 +10,7 @@ import type {MediaSize} from '@helpers/mediaSize';
 import type {Progress} from '@lib/appDownloadManager';
 import type {VIDEO_MIME_TYPE} from '@environment/videoMimeTypesSupport';
 import type {Mirrors} from '@lib/apiManagerProxy';
+import type {StateSettings} from '@config/state';
 import LazyLoadQueueBase from '@components/lazyLoadQueueBase';
 import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
 import tsNow from '@helpers/tsNow';
@@ -609,6 +610,10 @@ export class AppMessagesManager extends AppManager {
   // 'settings_updated' event so readHistory/readMessages (hot, synchronous
   // paths) don't need to await appStateManager.getState() on every call.
   private hideReadStatusEnabled = false;
+  // RabbitGram: mirrors settings.ghostSendDelay gated by any ghost-mode flag
+  // being active — when true, outgoing text messages are held for 5s before
+  // the API call actually fires. See sendText.
+  private ghostSendDelayEnabled = false;
   // RabbitGram: local, per-peer log of captured view-once media (see
   // captureViewOnceMediaIfEnabled / getViewOnceMedia).
   private viewOnceMediaStorage: AppStorage<Record<PeerId, ViewOnceMediaRecord[]>, AccountDatabase>;
@@ -684,11 +689,20 @@ export class AppMessagesManager extends AppManager {
     this.editedMessagesStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'editedMessages');
     this.viewOnceMediaStorage = new AppStorage(getDatabaseState(this.getAccountNumber()), 'viewOnceMedia');
 
+    const updateGhostFlags = (settings: StateSettings | undefined) => {
+      this.hideReadStatusEnabled = !!settings?.hideReadStatus;
+      this.ghostSendDelayEnabled = !!(settings?.ghostSendDelay && (
+        settings.hideOnlineStatus ||
+        settings.hideReadStatus ||
+        settings.hideTypingStatus ||
+        settings.dontReadStories
+      ));
+    };
     this.appStateManager.getState().then((state) => {
-      this.hideReadStatusEnabled = !!state.settings?.hideReadStatus;
+      updateGhostFlags(state.settings);
     });
     this.rootScope.addEventListener('settings_updated', ({settings}) => {
-      this.hideReadStatusEnabled = !!settings?.hideReadStatus;
+      updateGhostFlags(settings);
     });
 
     this.clear(true);
@@ -1558,6 +1572,17 @@ export class AppMessagesManager extends AppManager {
         }
       });
     };
+
+    // RabbitGram: ghostSendDelay — hold the actual network send for 5s while
+    // the message already sits in the chat as "pending", so a ghost-mode user
+    // gets a cancellation window before any activity reaches the server.
+    // Scheduled sends already have an explicit date, no reason to also delay.
+    if(this.ghostSendDelayEnabled && !options.scheduleDate) {
+      const originalSend = message.send;
+      message.send = () => new Promise((resolve, reject) => {
+        setTimeout(() => originalSend().then(resolve, reject), 5000);
+      });
+    }
 
     this.beforeMessageSending(message, {
       isScheduled: !!options.scheduleDate || undefined,

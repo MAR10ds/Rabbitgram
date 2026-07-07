@@ -156,6 +156,42 @@ const RabbitGramSettingsTab = () => {
           <Row.Subtitle>{i18n('RabbitGram.Settings.HideReadStatusSubtitle')}</Row.Subtitle>
         </Row>
         <Row>
+          <Row.Icon icon="timer" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.autoGoOffline}
+              onChange={(value) => setAppSettings('autoGoOffline', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.AutoGoOffline')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.AutoGoOfflineSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="stories" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.dontReadStories}
+              onChange={(value) => setAppSettings('dontReadStories', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.DontReadStories')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.DontReadStoriesSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="sending" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.ghostSendDelay}
+              onChange={(value) => setAppSettings('ghostSendDelay', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.GhostSendDelay')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.GhostSendDelaySubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
           <Row.Icon icon="eye2" />
           <Row.CheckboxFieldToggle>
             <CheckboxFieldTsx

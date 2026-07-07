@@ -65,11 +65,21 @@ export default class AppStoriesManager extends AppManager {
   private changelogPeerId: PeerId;
   private expiring: ExpiringItem[];
   private stealthMode: StoriesStealthMode;
+  // RabbitGram: mirrors settings.dontReadStories (and hideReadStatus) so the
+  // hot readStories path doesn't need to await appStateManager.getState().
+  private dontReadStoriesEnabled = false;
 
   protected after() {
     this.clear(true);
 
     this.changelogPeerId = SERVICE_PEER_ID;
+
+    this.appStateManager.getState().then((state) => {
+      this.dontReadStoriesEnabled = !!(state.settings?.dontReadStories || state.settings?.hideReadStatus);
+    });
+    this.rootScope.addEventListener('settings_updated', ({settings}) => {
+      this.dontReadStoriesEnabled = !!(settings?.dontReadStories || settings?.hideReadStatus);
+    });
 
     if(TEST_NO_STORIES) {
       return;
@@ -1248,6 +1258,13 @@ export default class AppStoriesManager extends AppManager {
       return;
     }
 
+    // RabbitGram: dontReadStories — the local update above already cleared
+    // our own unread ring; skip telling the server so the author never sees
+    // us in the story's viewers list.
+    if(this.dontReadStoriesEnabled) {
+      return;
+    }
+
     return this.apiManager.invokeApiSingleProcess({
       method: 'stories.readStories',
       params: {
@@ -1258,6 +1275,12 @@ export default class AppStoriesManager extends AppManager {
   }
 
   public incrementStoryViews(peerId: PeerId, ids: StoryItem['id'][]) {
+    // RabbitGram: dontReadStories — a view increment also surfaces us in the
+    // author's viewers list, so it has to stay silent too.
+    if(this.dontReadStoriesEnabled) {
+      return Promise.resolve(true as boolean);
+    }
+
     return this.apiManager.invokeApiSingleProcess({
       method: 'stories.incrementStoryViews',
       params: {

@@ -62,6 +62,10 @@ export class AppUsersManager extends AppManager {
   private requirementsToContactPromises: Map<UserId, CancellablePromise<RequirementToContact>>;
   private requirementsToContactProcessing: boolean;
 
+  // RabbitGram: pending "go back offline" timer for the autoGoOffline
+  // setting, see updateMyOnlineStatus.
+  private autoGoOfflineTimeout: ReturnType<typeof setTimeout>;
+
   protected after() {
     this.clear(true);
 
@@ -1147,6 +1151,18 @@ export class AppUsersManager extends AppManager {
     const state = await this.appStateManager.getState();
     if(state.settings?.hideOnlineStatus) {
       offline = true;
+    }
+
+    // RabbitGram: autoGoOffline — after any online broadcast, schedule an
+    // offline one 5 seconds later so the visible online window stays minimal.
+    // Rescheduled (not stacked) on every online call; an explicit offline
+    // call makes the pending timer redundant, so it's dropped.
+    clearTimeout(this.autoGoOfflineTimeout);
+    if(!offline && state.settings?.autoGoOffline) {
+      this.autoGoOfflineTimeout = setTimeout(() => {
+        this.setUserStatus(this.getSelf().id, true);
+        this.apiManager.invokeApiSingle('account.updateStatus', {offline: true});
+      }, 5000);
     }
 
     this.setUserStatus(this.getSelf().id, offline);

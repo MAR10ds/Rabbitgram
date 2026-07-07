@@ -4873,6 +4873,17 @@ const lang = {
   'RabbitGram.Settings.HideOnlineStatusSubtitle': 'Always appear offline to other people, regardless of your Last Seen privacy setting.',
   'RabbitGram.Settings.HideReadStatus': 'Hide Read Status',
   'RabbitGram.Settings.HideReadStatusSubtitle': 'Don’t send read receipts (message and voice/video “played” ticks) — your own unread badges still clear normally.',
+
+  // RabbitGram: ghost-mode extensions
+  'RabbitGram.Settings.AutoGoOffline': 'Go Offline Automatically',
+  'RabbitGram.Settings.AutoGoOfflineSubtitle': 'Whenever an action makes you appear online, switch back to offline 5 seconds later.',
+  'RabbitGram.Settings.DontReadStories': 'Don’t Read Stories',
+  'RabbitGram.Settings.DontReadStoriesSubtitle': 'Watch stories without appearing in their viewers list — your own unread story rings still clear normally.',
+  'RabbitGram.Settings.GhostSendDelay': 'Delayed Sending',
+  'RabbitGram.Settings.GhostSendDelaySubtitle': 'While ghost mode is active, hold outgoing messages for 5 seconds before actually sending them.',
+  'RabbitGram.StoryAlert.Title': 'Open Story?',
+  'RabbitGram.StoryAlert.Description': 'Viewing this story will mark it as seen. Continue?',
+  'RabbitGram.StoryAlert.Open': 'Open',
   'RabbitGram.Settings.CompactChatList': 'Compact Chat List',
   'RabbitGram.Settings.CompactChatListSubtitle': 'Hide the message preview line in the chat list to fit more chats on screen.',
   'RabbitGram.Settings.SoundSectionTitle': 'Notification Sound',
