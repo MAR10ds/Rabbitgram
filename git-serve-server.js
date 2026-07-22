@@ -9,15 +9,33 @@ const express = require("express");
 
 const repository = '.git';
 
+// SECURITY: this is a LOCAL developer tool that serves the raw git repository
+// (every file at every revision, including .env) over HTTP and has no auth.
+// Never expose it on a public interface — bind it to localhost only, or don't
+// run it on anything reachable from the internet.
+
+// Escape values interpolated into the HTML listing below. Commit subjects and
+// refs come from `git log`, i.e. they're author-controlled, so without this a
+// crafted commit message could inject markup/script into this page.
+function esc(value) {
+  return String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;');
+}
+
 const app = express();
 app.get(/^\/.+/, gitstatic.route().repository(repository));
 app.get(/\//, (req, res) => {
   gitstatic.listAllCommits(repository, (err, commits) => {
     console.log(err, commits);
 
+    res.type('html');
     res.send(
       commits.map((commit) => {
-        return `<a href="/${commit.sha}/public/index.html" target="_blank"><span style="font-family: monospace;">${commit.sha.slice(0, 7)} - ${commit.date.toISOString()}</span></a> - <a href="https://github.com/morethanwords/tweb/commit/${commit.sha}" target="_blank">${commit.subject}</a><br>`;
+        const shaPath = encodeURIComponent(commit.sha);
+        return `<a href="/${shaPath}/public/index.html" target="_blank" rel="noopener"><span style="font-family: monospace;">${esc(String(commit.sha).slice(0, 7))} - ${esc(commit.date.toISOString())}</span></a> - <a href="https://github.com/morethanwords/tweb/commit/${shaPath}" target="_blank" rel="noopener">${esc(commit.subject)}</a><br>`;
       }).join('')
     );
   });
