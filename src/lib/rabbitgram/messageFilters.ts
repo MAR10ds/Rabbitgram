@@ -18,6 +18,15 @@ const storage = new AppStorage<{filters: string[]}, AccountDatabase>(
 let filters: string[] = [];
 let matchers: Array<(text: string) => boolean> = [];
 
+// Security: a user-authored pattern can exhibit catastrophic backtracking
+// (ReDoS). The pattern is the user's own, but the *text* it runs against is
+// attacker-controlled — an incoming message crafted against a known/guessed
+// filter could otherwise freeze the UI thread. We bound both sides: reject
+// absurdly long patterns (no legitimate keyword filter needs them) and cap the
+// text length any single matcher is tested against.
+const MAX_FILTER_PATTERN_LENGTH = 1000;
+const MAX_FILTER_TEXT_LENGTH = 10000;
+
 function compile(patterns: string[]) {
   filters = patterns;
   matchers = patterns.map((pattern) => {
@@ -44,7 +53,7 @@ export function getMessageFilters(): string[] {
 
 export async function addMessageFilter(pattern: string) {
   pattern = pattern.trim();
-  if(!pattern || filters.includes(pattern)) {
+  if(!pattern || pattern.length > MAX_FILTER_PATTERN_LENGTH || filters.includes(pattern)) {
     return;
   }
 
@@ -62,5 +71,6 @@ export function messageMatchesFilters(text: string | undefined): boolean {
     return false;
   }
 
-  return matchers.some((matches) => matches(text));
+  const capped = text.length > MAX_FILTER_TEXT_LENGTH ? text.slice(0, MAX_FILTER_TEXT_LENGTH) : text;
+  return matchers.some((matches) => matches(capped));
 }

@@ -69,6 +69,16 @@ const USE_DEV_HTTP2 = !USE_SSL && !process.env.TWEB_PREVIEW && !process.env.VITE
 const serverOptions: ServerOptions = {
   host,
   port: USE_SSL ? 443 : 8080,
+  // RabbitGram: baseline security headers on the dev server too — `pnpm
+  // start-in-docker` runs `vite --host`, exposing this on the LAN. Kept to the
+  // three HMR-safe headers; a CSP is intentionally omitted here because Vite's
+  // dev client relies on inline scripts / eval that a strict CSP would break
+  // (the production server.js applies the CSP instead).
+  headers: {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
+  },
   watch: {
     // NB: anchor on rootDir. A worktree checkout's own path contains
     // ".claude/worktrees/<name>/", so a bare '**/.claude/**' glob would also match

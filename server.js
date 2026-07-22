@@ -30,6 +30,12 @@ app.use((req, res, next) => {
   res.set('X-Frame-Options', 'DENY');
   res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.set('Content-Security-Policy', "object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
+  // Opt out of ad-tech/tracking APIs and powerful hardware the client never
+  // uses. Deliberately omits camera/microphone/geolocation/display-capture/
+  // fullscreen/payment — those ARE used (calls, voice/video notes, location
+  // sharing, Telegram payments) and default to 'self', so listing them here
+  // would break those features.
+  res.set('Permissions-Policy', 'browsing-topics=(), interest-cohort=(), serial=(), usb=(), bluetooth=(), hid=(), midi=()');
   if(!useHttp) {
     res.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains');
   }

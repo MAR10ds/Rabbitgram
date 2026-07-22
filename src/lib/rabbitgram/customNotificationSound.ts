@@ -55,6 +55,10 @@ export function playCustomNotificationSound(volume: number): boolean {
   const sound = cachedSound;
   if(!sound) return false;
 
+  // Defense-in-depth: only ever hand an audio data URL to the Audio element,
+  // even though the upload path already restricts to audio/* files.
+  if(!sound.data.startsWith('data:audio/')) return false;
+
   const now = Date.now();
   if(now < nextPlayAt) return true; // throttled but custom sound IS set
   nextPlayAt = now + 1000;
