@@ -6,6 +6,41 @@ import {joinDeepPath} from '@helpers/object/setDeepProperty';
 import getDeepProperty from '@helpers/object/getDeepProperty';
 import {MOUNT_CLASS_TO} from '@config/debug';
 
+// RabbitGram: draw an emoji onto a canvas and use it as the browser-tab
+// favicon. Web equivalent of AyuGram's desktop application-icon picker. An
+// empty value removes our override so the static favicons in index.html apply.
+const RABBITGRAM_FAVICON_ID = 'rabbitgram-favicon';
+function applyFavicon(emoji: string) {
+  const existing = document.getElementById(RABBITGRAM_FAVICON_ID) as HTMLLinkElement | null;
+
+  if(!emoji) {
+    existing?.remove();
+    return;
+  }
+
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if(!ctx) {
+    return;
+  }
+
+  ctx.font = `${size * 0.82}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, size / 2, size / 2 + size * 0.06);
+
+  const link = existing ?? document.createElement('link');
+  link.id = RABBITGRAM_FAVICON_ID;
+  link.rel = 'icon';
+  link.type = 'image/png';
+  link.href = canvas.toDataURL('image/png');
+  if(!existing) {
+    document.head.appendChild(link);
+  }
+}
+
 const [appSettings, _setAppSettings] = createRoot(() => {
   const store = createStore<StateSettings>({} as any);
 
@@ -39,6 +74,30 @@ const [appSettings, _setAppSettings] = createRoot(() => {
   });
   createEffect(() => {
     document.documentElement.classList.toggle('rabbitgram-rounded-stickers', !!store[0].roundedStickers);
+  });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-top-center-notifications', !!store[0].topCenterNotifications);
+  });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-material-switches', !!store[0].materialSwitches);
+  });
+  createEffect(() => {
+    document.documentElement.classList.toggle('rabbitgram-collapse-similar-channels', !!store[0].collapseSimilarChannels);
+  });
+  // RabbitGram: mono font — override the --font-monospace variable used by all
+  // code/monospace text. Empty falls back to the stylesheet's default.
+  createEffect(() => {
+    const font = store[0].monoFont;
+    if(font) {
+      document.documentElement.style.setProperty('--font-monospace', font);
+    } else {
+      document.documentElement.style.removeProperty('--font-monospace');
+    }
+  });
+  // RabbitGram: app icon — swap the browser-tab favicon for an emoji-drawn one.
+  // Empty restores the static <link rel="icon"> tags from index.html.
+  createEffect(() => {
+    applyFavicon(store[0].appIcon);
   });
 
   return store;

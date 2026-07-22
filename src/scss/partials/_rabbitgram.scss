@@ -92,3 +92,44 @@
     --max-width: calc(85% * var(--rabbitgram-bubble-width-scale, 1));
   }
 }
+
+// Top-center notifications — pin in-app toasts to the top center of the window
+// (web equivalent of AyuGram's top-center desktop notifications) instead of
+// the stock vertical center. See components/toast.ts and base.scss.
+.rabbitgram-top-center-notifications .toasts-container {
+  align-items: flex-start;
+  padding-top: 4.5rem;
+}
+
+// Material-style toggle switches — a taller filled track with a thumb that
+// grows when checked, on a smoother easing curve. Overrides _checkbox.scss.
+.rabbitgram-material-switches {
+  .checkbox-field-toggle .checkbox-toggle {
+    height: 1rem;
+    border-radius: .5rem;
+
+    &-circle {
+      width: 1.125rem;
+      height: 1.125rem;
+      border-width: 1px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+
+      @include animation-level(2) {
+        transition: border-color .15s, background-color .15s, transform .2s cubic-bezier(.4, 0, .2, 1);
+      }
+    }
+  }
+
+  [type="checkbox"]:checked:not(.is-fake-disabled) + .checkbox-toggle .checkbox-toggle-circle {
+    background-color: #fff;
+  }
+}
+
+// Collapse Similar channels — when collapsed the horizontal list isn't rendered
+// (see similarChannels.tsx); the header chevron flips to indicate state.
+.similar-channels-container.is-collapsed .similar-channels-header .rabbitgram-similar-collapse-icon {
+  transform: rotate(180deg);
+}
+.similar-channels-header .rabbitgram-similar-collapse-icon {
+  transition: transform .2s ease;
+}

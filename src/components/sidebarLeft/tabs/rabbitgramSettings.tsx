@@ -1,7 +1,8 @@
 import Row from '@components/rowTsx';
 import Section from '@components/section';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {i18n} from '@lib/langPack';
+import {IconTsx} from '@components/iconTsx';
+import {i18n, LangPackKey} from '@lib/langPack';
 import {useAppSettings} from '@stores/appSettings';
 import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
 import {AppRabbitGramMessageFiltersTab, AppRabbitGramContextMenuTab} from '@components/solidJsTabs/tabs';
@@ -9,7 +10,32 @@ import RangeSettingSelector from '@components/rangeSettingSelector';
 import {ConfettiContainer, ConfettiRef} from '@components/confetti';
 import {toastNew} from '@components/toast';
 import styles from './rabbitgramSettings.module.scss';
-import {createSignal} from 'solid-js';
+import {createSignal, For, Show} from 'solid-js';
+
+// RabbitGram: mono-font presets. Empty value falls back to the stylesheet
+// default; named fonts only take visible effect if installed on the system.
+const MONO_FONTS: {langKey?: LangPackKey, text?: string, value: string}[] = [
+  {langKey: 'RabbitGram.Settings.MonoFont.Default', value: ''},
+  {langKey: 'RabbitGram.Settings.MonoFont.System', value: 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace'},
+  {text: 'Roboto Mono', value: '"Roboto Mono", monospace'},
+  {text: 'Fira Code', value: '"Fira Code", monospace'},
+  {text: 'JetBrains Mono', value: '"JetBrains Mono", monospace'},
+  {text: 'Source Code Pro', value: '"Source Code Pro", monospace'},
+  {text: 'Courier New', value: '"Courier New", monospace'},
+  {text: 'Consolas', value: 'Consolas, monospace'}
+];
+
+// RabbitGram: favicon presets (emoji drawn onto a canvas in appSettings.ts).
+// Empty value restores the bundled favicons declared in index.html.
+const APP_ICONS: {emoji: string, value: string}[] = [
+  {emoji: '🐰', value: ''},
+  {emoji: '🥕', value: '🥕'},
+  {emoji: '🐇', value: '🐇'},
+  {emoji: '🌙', value: '🌙'},
+  {emoji: '⭐', value: '⭐'},
+  {emoji: '💬', value: '💬'},
+  {emoji: '🚀', value: '🚀'}
+];
 import {
   getCustomNotificationSound,
   setCustomNotificationSound,
@@ -74,6 +100,18 @@ const RabbitGramSettingsTab = () => {
     await clearCustomNotificationSound();
     setCustomSoundName(null);
     toastNew({langPackKey: 'RabbitGram.Settings.Sound.Removed'});
+  };
+
+  // RabbitGram: ask the browser to route tg:// links to RabbitGram — the web
+  // equivalent of AyuGram's desktop URL-scheme registration. Browsers gate
+  // which schemes may be registered, so a rejection is reported gracefully.
+  const onRegisterUrlScheme = () => {
+    try {
+      navigator.registerProtocolHandler?.('tg', location.origin + '/#tgaddr=%s');
+      toastNew({langPackKey: 'RabbitGram.Settings.UrlScheme.Done'});
+    } catch(e) {
+      toastNew({langPackKey: 'RabbitGram.Settings.UrlScheme.Unsupported'});
+    }
   };
 
   const onLogoClick = () => {
@@ -402,6 +440,78 @@ const RabbitGramSettingsTab = () => {
           </Row.CheckboxFieldToggle>
           <Row.Title>{i18n('RabbitGram.Settings.RoundedStickers')}</Row.Title>
           <Row.Subtitle>{i18n('RabbitGram.Settings.RoundedStickersSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="unmute" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.topCenterNotifications}
+              onChange={(value) => setAppSettings('topCenterNotifications', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.TopCenterNotifications')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.TopCenterNotificationsSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="settings" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.materialSwitches}
+              onChange={(value) => setAppSettings('materialSwitches', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.MaterialSwitches')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.MaterialSwitchesSubtitle')}</Row.Subtitle>
+        </Row>
+        <Row>
+          <Row.Icon icon="channel" />
+          <Row.CheckboxFieldToggle>
+            <CheckboxFieldTsx
+              checked={appSettings.collapseSimilarChannels}
+              onChange={(value) => setAppSettings('collapseSimilarChannels', value)}
+              toggle
+            />
+          </Row.CheckboxFieldToggle>
+          <Row.Title>{i18n('RabbitGram.Settings.CollapseSimilarChannels')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.CollapseSimilarChannelsSubtitle')}</Row.Subtitle>
+        </Row>
+      </Section>
+      <Section name="RabbitGram.Settings.MonoFontSectionTitle" caption="RabbitGram.Settings.MonoFontSectionCaption">
+        <For each={MONO_FONTS}>
+          {(font) => (
+            <Row clickable={() => setAppSettings('monoFont', font.value)}>
+              <Row.Title>
+                {font.langKey ?
+                  i18n(font.langKey) :
+                  <span style={{'font-family': font.value}}>{font.text}</span>}
+              </Row.Title>
+              <Show when={appSettings.monoFont === font.value}>
+                <Row.RightContent><IconTsx icon="check" /></Row.RightContent>
+              </Show>
+            </Row>
+          )}
+        </For>
+      </Section>
+      <Section name="RabbitGram.Settings.AppIconSectionTitle" caption="RabbitGram.Settings.AppIconSectionCaption">
+        <For each={APP_ICONS}>
+          {(icon) => (
+            <Row clickable={() => setAppSettings('appIcon', icon.value)}>
+              <Row.Title>
+                <span class={styles.appIconEmoji}>{icon.emoji}</span>
+                <Show when={!icon.value}>{i18n('RabbitGram.Settings.AppIcon.Default')}</Show>
+              </Row.Title>
+              <Show when={appSettings.appIcon === icon.value}>
+                <Row.RightContent><IconTsx icon="check" /></Row.RightContent>
+              </Show>
+            </Row>
+          )}
+        </For>
+        <Row clickable={onRegisterUrlScheme}>
+          <Row.Icon icon="link" />
+          <Row.Title>{i18n('RabbitGram.Settings.UrlScheme')}</Row.Title>
+          <Row.Subtitle>{i18n('RabbitGram.Settings.UrlSchemeSubtitle')}</Row.Subtitle>
         </Row>
       </Section>
     </>

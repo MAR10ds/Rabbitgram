@@ -4947,6 +4947,41 @@ const lang = {
   'RabbitGram.Settings.Sound.TooLarge': 'File too large. Maximum size is 5 MB.',
   'RabbitGram.Settings.Sound.NoCustom': 'No custom sound set yet.',
   'RabbitGram.Settings.AppearanceSectionTitle': 'Appearance',
+  'RabbitGram.Settings.TopCenterNotifications': 'Top-Center Notifications',
+  'RabbitGram.Settings.TopCenterNotificationsSubtitle': 'Show in-app toast notifications at the top center of the window instead of the middle.',
+  'RabbitGram.Settings.MaterialSwitches': 'Material Switches',
+  'RabbitGram.Settings.MaterialSwitchesSubtitle': 'Restyle the toggle switches with a Material-style filled track and a thumb that grows when turned on.',
+  'RabbitGram.Settings.CollapseSimilarChannels': 'Collapse Similar Channels',
+  'RabbitGram.Settings.CollapseSimilarChannelsSubtitle': 'Show the “Similar channels” block collapsed by default — expand it from its header instead of removing it entirely.',
+
+  // RabbitGram: mono font — the font used for code / monospaced text
+  'RabbitGram.Settings.MonoFontSectionTitle': 'Mono Font',
+  'RabbitGram.Settings.MonoFontSectionCaption': 'Choose the font used for monospaced and code text (inline code and code blocks).',
+  'RabbitGram.Settings.MonoFont.Default': 'Default (Roboto Mono)',
+  'RabbitGram.Settings.MonoFont.System': 'System Monospace',
+
+  // RabbitGram: app icon — web equivalent of AyuGram's icon picker (favicon)
+  'RabbitGram.Settings.AppIconSectionTitle': 'App Icon',
+  'RabbitGram.Settings.AppIconSectionCaption': 'Change the browser-tab icon (favicon). The default uses the bundled RabbitGram icon.',
+  'RabbitGram.Settings.AppIcon.Default': 'Default',
+
+  // RabbitGram: register RabbitGram as the handler for tg:// links
+  'RabbitGram.Settings.UrlScheme': 'Open Telegram Links Here',
+  'RabbitGram.Settings.UrlSchemeSubtitle': 'Ask your browser to open tg:// links in RabbitGram.',
+  'RabbitGram.Settings.UrlScheme.Done': 'Your browser was asked to open Telegram links in RabbitGram.',
+  'RabbitGram.Settings.UrlScheme.Unsupported': 'Your browser doesn’t allow registering this link type.',
+
+  // RabbitGram: read-only message inspector (see popups/messageDetails.ts)
+  'RabbitGram.MessageDetails.MenuButton': 'Message Details',
+  'RabbitGram.MessageDetails.Title': 'Message Details',
+  'RabbitGram.MessageDetails.Id': 'Message ID',
+  'RabbitGram.MessageDetails.Date': 'Date',
+  'RabbitGram.MessageDetails.EditDate': 'Last edited',
+  'RabbitGram.MessageDetails.SenderId': 'Sender ID',
+  'RabbitGram.MessageDetails.ChatId': 'Chat ID',
+  'RabbitGram.MessageDetails.Views': 'Views',
+  'RabbitGram.MessageDetails.Forwards': 'Forwards',
+  'RabbitGram.MessageDetails.Packs': 'Sticker & Emoji Packs',
 
   // RabbitGram: quick account-switch shortcut, listed in Keyboard Shortcuts
   'RabbitGram.KeyboardShortcuts.SwitchAccount': 'Switch to Account 1-4',

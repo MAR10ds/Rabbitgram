@@ -257,6 +257,24 @@ export type StateSettings = {
   // a message, replying, forwarding) triggers the read call. See bubbles'
   // readUnreaded / forceReadUnreaded.
   readOnInteract: boolean,
+  // RabbitGram: font-family stack used for monospaced/code text (inline code,
+  // ```code blocks```, pre). Empty = the stock 'Roboto Mono'. Applied by
+  // overriding the --font-monospace CSS variable in stores/appSettings.ts.
+  monoFont: string,
+  // RabbitGram: show in-app toasts at the top center of the window instead of
+  // the vertical center. Pure CSS, wired in stores/appSettings.ts.
+  topCenterNotifications: boolean,
+  // RabbitGram: restyle the toggle switches with a Material-style filled track
+  // and a thumb that grows when checked. Pure CSS, wired in appSettings.ts.
+  materialSwitches: boolean,
+  // RabbitGram: collapse the "Similar channels" block by default (still
+  // expandable via its header) instead of showing it open. Distinct from
+  // hideSimilarChannels, which removes it entirely. See similarChannels.tsx.
+  collapseSimilarChannels: boolean,
+  // RabbitGram: favicon / browser-tab icon variant key (see APP_ICONS in the
+  // settings tab). Empty = the default bunny favicon. Applied by swapping the
+  // <link rel="icon"> hrefs in stores/appSettings.ts.
+  appIcon: string,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -653,7 +671,12 @@ export const SETTINGS_INIT: StateSettings = {
   hiddenContextMenuItems: [],
   monochromeReplies: false,
   roundedStickers: false,
-  readOnInteract: false
+  readOnInteract: false,
+  monoFont: '',
+  topCenterNotifications: false,
+  materialSwitches: false,
+  collapseSimilarChannels: false,
+  appIcon: ''
 };
 
 export const STATE_INIT: State = {

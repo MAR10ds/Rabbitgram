@@ -1,4 +1,4 @@
-import {createEffect, createSignal, JSX, For, untrack, Accessor, onCleanup, Ref, createMemo} from 'solid-js';
+import {createEffect, createSignal, JSX, For, untrack, Accessor, onCleanup, Ref, createMemo, Show} from 'solid-js';
 import {i18n} from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import {AvatarNew} from '@components/avatarNew';
@@ -22,6 +22,7 @@ import {IconTsx} from '@components/iconTsx';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import showTooltip from '@components/tooltip';
 import {usePeer} from '@stores/peers';
+import {appSettings} from '@stores/appSettings';
 
 let canvas: HTMLCanvasElement, context: CanvasRenderingContext2D;
 export function SimilarPeer(props: {
@@ -144,6 +145,10 @@ export default function SimilarChannels(props: {
   const [premium, setPremium] = createSignal(rootScope.premium);
   const [details, setDetails] = createSignal<Awaited<Awaited<ReturnType<typeof getDetails>>['results']>>();
   const [list, setList] = createSignal<JSX.Element>();
+  // RabbitGram: start collapsed when the "Collapse Similar Channels" setting is
+  // on — the block still mounts, but its list is hidden until the user expands
+  // it from the header chevron.
+  const [collapsed, setCollapsed] = createSignal(!!appSettings.collapseSimilarChannels);
 
   let {onAcked, onReady, onEmpty} = props;
 
@@ -292,19 +297,26 @@ export default function SimilarChannels(props: {
   });
 
   return (
-    <div class="similar-channels-container">
+    <div class={classNames('similar-channels-container', collapsed() && 'is-collapsed')}>
       <svg class="similar-channels-notch" width="19" height="7" viewBox="0 0 19 7" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path class="similar-channels-notch-path" fill-rule="evenodd" clip-rule="evenodd" d="M19 7C16.8992 7 13.59 3.88897 11.5003 1.67424C10.7648 0.894688 10.397 0.50491 10.0434 0.385149C9.70568 0.270811 9.4225 0.270474 9.08456 0.38401C8.73059 0.50293 8.36133 0.892443 7.62279 1.67147C5.52303 3.88637 2.18302 7 0 7L19 7Z" />
       </svg>
       <div class="similar-channels-header">
         {i18n('SimilarChannels')}
+        <ButtonIconTsx
+          class="rabbitgram-similar-collapse-icon"
+          icon="down"
+          onClick={() => setCollapsed((v) => !v)}
+        />
         <ButtonIconTsx icon="close" onClick={props.onClose} />
       </div>
-      <Scrollable axis="x">
-        <div class="similar-channels-list-margin"></div>
-        {list()}
-        <div class="similar-channels-list-margin"></div>
-      </Scrollable>
+      <Show when={!collapsed()}>
+        <Scrollable axis="x">
+          <div class="similar-channels-list-margin"></div>
+          {list()}
+          <div class="similar-channels-list-margin"></div>
+        </Scrollable>
+      </Show>
     </div>
   );
 }

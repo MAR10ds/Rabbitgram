@@ -34,3 +34,11 @@
 .danger {
   color: var(--danger-color, #e53935);
 }
+
+.appIconEmoji {
+  display: inline-block;
+  font-size: 1.375rem;
+  line-height: 1;
+  margin-inline-end: .5rem;
+  vertical-align: middle;
+}

@@ -4,6 +4,7 @@ import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import ButtonMenu, {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
 import PopupDeleteMessages from '@components/popups/deleteMessages';
 import PopupEditHistory from '@components/popups/editHistory';
+import PopupMessageDetails from '@components/popups/messageDetails';
 import showForwardPopup from '@components/popups/forward';
 import PopupPinMessage from '@components/popups/unpinMessage';
 import {copyTextToClipboard} from '@helpers/clipboard';
@@ -1123,6 +1124,14 @@ export default class ChatContextMenu {
         PopupElement.createPopup(PopupEditHistory, this.messagePeerId, this.mid, this.message as Message.message);
       },
       verify: () => this.message._ === 'message' && !!this.message.edit_date
+    }, {
+      // RabbitGram: read-only inspector — message ids, timestamps, sticker/emoji packs
+      icon: 'info',
+      text: 'RabbitGram.MessageDetails.MenuButton',
+      onClick: () => {
+        PopupElement.createPopup(PopupMessageDetails, this.messagePeerId, this.mid, this.message as Message.message);
+      },
+      verify: () => this.message?._ === 'message'
     }, {
       icon: 'delete',
       get className() {
