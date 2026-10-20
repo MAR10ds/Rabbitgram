@@ -1,0 +1,26 @@
+# RabbitGram: keep local secrets and junk out of the Docker build context.
+# (Dockerfiles here `COPY .. .`, so anything not listed would end up in the
+# builder image layers.)
+.git
+node_modules
+**/node_modules
+dist
+certs
+*.pem
+*.key
+ssh.json
+.env.local
+.env.*.local
+*.session
+tmp
+snapshot-server/snapshots
+.claude
+.idea
+.vscode
+coverage
+test-results
+playwright-report
+blob-report
+stats.html
+stats.json
+archive.zip

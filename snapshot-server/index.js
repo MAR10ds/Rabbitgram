@@ -10,6 +10,35 @@ const app = express();
 const PORT = 8080;
 const SNAPSHOT_DIR = path.join(__dirname, 'snapshots');
 
+// SECURITY: snapshots are full copies of localStorage + IndexedDB, i.e. they
+// contain the Telegram auth keys — anyone who can read one owns the account.
+// So this tool listens on loopback only, refuses requests whose Host header
+// isn't localhost (blocks DNS-rebinding from a malicious website), and only
+// ever touches files that look like snapshots inside SNAPSHOT_DIR (blocks
+// path traversal such as /api/snapshots/..%2F..%2F.ssh%2Fid_rsa).
+const HOST = '127.0.0.1';
+const ALLOWED_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]']);
+const SNAPSHOT_FILENAME = /^snapshot-[0-9_-]+\.json$/;
+
+function resolveSnapshotPath(filename) {
+  if(typeof(filename) !== 'string' || !SNAPSHOT_FILENAME.test(filename)) {
+    return undefined;
+  }
+
+  return path.join(SNAPSHOT_DIR, filename);
+}
+
+app.use((req, res, next) => {
+  const hostname = (req.headers.host || '').replace(/:\d+$/, '').toLowerCase();
+  if(!ALLOWED_HOSTNAMES.has(hostname)) {
+    return res.status(403).send('Forbidden');
+  }
+
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'DENY');
+  next();
+});
+
 // Ensure snapshot folder exists
 if(!fs.existsSync(SNAPSHOT_DIR)) {
   fs.mkdirSync(SNAPSHOT_DIR);
@@ -22,7 +51,7 @@ app.use(express.text({type: 'text/plain', limit: '100mb'}));
 // List all snapshots
 app.get('/api/snapshots', async(req, res) => {
   const jsonFiles = fs.readdirSync(SNAPSHOT_DIR)
-  .filter(f => f.endsWith('.json'));
+  .filter(f => SNAPSHOT_FILENAME.test(f));
 
   const meta = await Promise.all(jsonFiles.map(async f => ({
     name: f,
@@ -54,10 +83,9 @@ app.post('/api/snapshots', (req, res) => {
 
 // Load a snapshot by filename
 app.get('/api/snapshots/:filename', (req, res) => {
-  const {filename} = req.params;
-  const filepath = path.join(SNAPSHOT_DIR, filename);
+  const filepath = resolveSnapshotPath(req.params.filename);
 
-  if(!fs.existsSync(filepath)) {
+  if(!filepath || !fs.existsSync(filepath)) {
     return res.status(404).json({error: 'Snapshot not found'});
   }
 
@@ -67,10 +95,9 @@ app.get('/api/snapshots/:filename', (req, res) => {
 
 // Delete a snapshot by filename
 app.delete('/api/snapshots/:filename', (req, res) => {
-  const {filename} = req.params;
-  const filepath = path.join(SNAPSHOT_DIR, filename);
+  const filepath = resolveSnapshotPath(req.params.filename);
 
-  if(!fs.existsSync(filepath)) {
+  if(!filepath || !fs.existsSync(filepath)) {
     return res.status(404).json({error: 'Snapshot not found'});
   }
 
@@ -82,7 +109,7 @@ app.delete('/api/snapshots/:filename', (req, res) => {
 const portArg = process.argv.find(arg => arg.startsWith('--port='));
 const portToUse = portArg ? parseInt(portArg.split('=')[1], 10) : PORT;
 
-app.listen(portToUse, () => {
+app.listen(portToUse, HOST, () => {
   console.log(`🟢 Server running at http://localhost:${portToUse}`);
 });
 
