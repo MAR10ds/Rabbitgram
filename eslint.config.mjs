@@ -75,7 +75,10 @@ export default [{
       }
     }],
 
-    'linebreak-style': ['error', 'unix'],
+    // RabbitGram: on Windows git's core.autocrlf checks files out with CRLF
+    // (they're still committed as LF), which made every file fail this rule
+    // and aborted `vite build` through vite-plugin-checker.
+    'linebreak-style': process.platform === 'win32' ? 'off' : ['error', 'unix'],
     'eol-last': 'error',
 
     'indent': ['error', 2, {

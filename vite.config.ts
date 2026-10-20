@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import {defineConfig} from 'vite';
+import {defineConfig, Plugin} from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 // @ts-ignore no type declarations
 import handlebars from 'vite-plugin-handlebars';
@@ -13,6 +13,9 @@ import {existsSync, copyFileSync, readFileSync} from 'fs';
 import {ServerOptions} from 'vite';
 import {watchLangFile} from './watch-lang.js';
 import path from 'path';
+import {createHash} from 'crypto';
+// @ts-ignore CommonJS module without type declarations
+import {buildCsp, baseSecurityHeaders} from './securityHeaders.js';
 
 const rootDir = resolve(__dirname);
 const certsDir = path.join(rootDir, 'certs');
@@ -30,6 +33,38 @@ if(isDEV) {
   }
 
   watchLangFile();
+}
+
+// RabbitGram: bake the Content-Security-Policy (securityHeaders.js) into
+// index.html as a <meta> tag — in dev (`pnpm start`) and in `vite build` —
+// so the page is protected even where no server headers are sent (static
+// hosting, nginx without our config, the dev server). Runs last ('post') so it
+// sees every inline script other plugins injected (only dev tooling does) and
+// allows exactly those by sha256 hash; anything injected later never runs.
+function rabbitgramCspPlugin(): Plugin {
+  return {
+    name: 'rabbitgram-csp',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        const scriptHashes: string[] = [];
+        for(const [, attrs, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+          if(!/\bsrc\s*=/i.test(attrs) && body.length) {
+            scriptHashes.push(createHash('sha256').update(body, 'utf8').digest('base64'));
+          }
+        }
+
+        const csp = buildCsp({dev: !!ctx.server, scriptHashes, meta: true});
+        const meta = `<meta http-equiv="Content-Security-Policy" content="${csp}">`;
+        // Right after <meta charset> (which must stay within the first 1024
+        // bytes) and before any script the policy has to govern.
+        const charset = /<meta\s+charset=[^>]*>/i;
+        return charset.test(html) ?
+          html.replace(charset, (tag) => tag + meta) :
+          html.replace(/<head[^>]*>/i, (tag) => tag + meta);
+      }
+    }
+  };
 }
 
 const handlebarsPlugin = handlebars({
@@ -69,16 +104,10 @@ const USE_DEV_HTTP2 = !USE_SSL && !process.env.TWEB_PREVIEW && !process.env.VITE
 const serverOptions: ServerOptions = {
   host,
   port: USE_SSL ? 443 : 8080,
-  // RabbitGram: baseline security headers on the dev server too — `pnpm
-  // start-in-docker` runs `vite --host`, exposing this on the LAN. Kept to the
-  // three HMR-safe headers; a CSP is intentionally omitted here because Vite's
-  // dev client relies on inline scripts / eval that a strict CSP would break
-  // (the production server.js applies the CSP instead).
-  headers: {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'Referrer-Policy': 'strict-origin-when-cross-origin'
-  },
+  // RabbitGram: same hardening headers as the production server.js. The CSP
+  // itself is delivered by rabbitgramCspPlugin as a <meta> tag in index.html
+  // (with the HMR websocket allowed in dev).
+  headers: baseSecurityHeaders(),
   watch: {
     // NB: anchor on rootDir. A worktree checkout's own path contains
     // ".claude/worktrees/<name>/", so a bare '**/.claude/**' glob would also match
@@ -158,6 +187,7 @@ export default defineConfig({
     }),
     solidPlugin(),
     handlebarsPlugin as any,
+    rabbitgramCspPlugin(),
     USE_SELF_SIGNED_CERTS ? basicSsl(BASIC_SSL_CONFIG) : undefined,
     // Only emit the bundle treemap (stats.html) when explicitly analyzing (ANALYZE=1):
     // it adds build time and writes a ~1.3MB file that otherwise gets globbed into the

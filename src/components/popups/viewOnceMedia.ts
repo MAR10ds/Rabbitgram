@@ -62,7 +62,12 @@ export default class PopupViewOnceMedia extends PopupElement {
   }
 
   private appendRow(section: SettingSection, record: ViewOnceMediaRecord) {
-    const blob = blobConstruct(base64ToBytes(record.base64), record.mimeType);
+    // The stored MIME type comes from the sender's document — never let it make
+    // a same-origin blob: URL that a browser would render as HTML/SVG.
+    const mimeType = record.mediaType === 'video' ?
+      (/^video\/[\w.+-]+$/.test(record.mimeType) ? record.mimeType : 'video/mp4') :
+      'image/jpeg';
+    const blob = blobConstruct(base64ToBytes(record.base64), mimeType);
     const url = URL.createObjectURL(blob);
     this.objectUrls.push(url);
 

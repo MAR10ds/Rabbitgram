@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["start"],
       "port": 8080
+    },
+    {
+      "name": "rabbitgram-local-build",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js", "--local"],
+      "port": 8080
     }
   ]
 }
