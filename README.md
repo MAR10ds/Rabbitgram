@@ -30,6 +30,12 @@ Open http://localhost:8080/ in your browser.
 
 Run `node build` to build the minimized production version of the app. Copy `public` folder contents to your web server.
 
+#### Everyday use with your own account
+
+Run `pnpm serve:local`: it builds the app and serves it on `http://localhost:8080` (loopback only) with the strict Content-Security-Policy and security headers from `securityHeaders.js`. See [SECURITY.md](/SECURITY.md) for the security model and a checklist for using RabbitGram with your main Telegram account.
+
+Both modes share the `localhost:8080` origin (and therefore the login). When switching between `pnpm serve:local` and `pnpm start`, close every RabbitGram tab first: a service worker or shared worker left over from the other mode can otherwise make the app hang on load. If it still hangs, unregister the service worker in DevTools → Application → Service workers and reload.
+
 ### Running in docker
 
 #### Developing:

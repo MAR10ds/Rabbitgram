@@ -29,3 +29,15 @@ ignore
 /blob-report/
 
 .claude/bugs-cache
+
+# RabbitGram: never commit secrets or anything holding a Telegram session
+.env.*.local
+*.pem
+*.key
+*.p12
+*.pfx
+*.session
+*.session-journal
+snapshot-server/snapshots
+.claude/settings.local.json
+.claude/worktrees

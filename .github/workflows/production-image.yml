@@ -5,64 +5,74 @@ on:
     tags:
       - 'tag/build-docker-image/*'
 
+# RabbitGram: least privilege — the jobs only need to read the repository.
+# Third-party actions are pinned to full commit SHAs (Dependabot keeps them
+# current, see .github/dependabot.yml) so a moved tag can't inject code into a
+# job that holds the Docker Hub token.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Read version from .env
         id: env
-        run: echo "::set-output name=PRODUCTION_BUILD_VERSION::$(grep ^PRODUCTION_BUILD_VERSION= .env | cut -d'=' -f2)"
+        run: echo "PRODUCTION_BUILD_VERSION=$(grep ^PRODUCTION_BUILD_VERSION= .env | cut -d'=' -f2)" >> "$GITHUB_OUTPUT"
 
       - name: Build the Docker image for latest
-        run: docker build -f ./.docker/Dockerfile_production -t ${{ vars.DOCKERHUB_USERNAME}}/tweb:latest .
+        run: docker build -f ./.docker/Dockerfile_production -t "$DOCKERHUB_USERNAME/tweb:latest" .
 
       - name: Build the Docker image for specific version
-        run: |
-          version=${{ steps.env.outputs.PRODUCTION_BUILD_VERSION }}
-          docker build -f ./.docker/Dockerfile_production -t ${{ vars.DOCKERHUB_USERNAME}}/tweb:${version} .
+        env:
+          VERSION: ${{ steps.env.outputs.PRODUCTION_BUILD_VERSION }}
+        run: docker build -f ./.docker/Dockerfile_production -t "$DOCKERHUB_USERNAME/tweb:$VERSION" .
 
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME}}" --password-stdin
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
       - name: Push versioned image
-        run: |
-          version=${{ steps.env.outputs.PRODUCTION_BUILD_VERSION }}
-          docker push  ${{ vars.DOCKERHUB_USERNAME}}/tweb:${version}
+        env:
+          VERSION: ${{ steps.env.outputs.PRODUCTION_BUILD_VERSION }}
+        run: docker push "$DOCKERHUB_USERNAME/tweb:$VERSION"
 
       - name: Push latest image
-
-        run: |
-          docker push ${{ vars.DOCKERHUB_USERNAME}}/tweb:latest
+        run: docker push "$DOCKERHUB_USERNAME/tweb:latest"
 
 
   test:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Read version from .env
         id: env
-        run: echo "::set-output name=PRODUCTION_BUILD_VERSION::$(grep ^PRODUCTION_BUILD_VERSION= .env | cut -d'=' -f2)"
+        run: echo "PRODUCTION_BUILD_VERSION=$(grep ^PRODUCTION_BUILD_VERSION= .env | cut -d'=' -f2)" >> "$GITHUB_OUTPUT"
 
       - name: Pull versioned image
-        run: |
-          version=${{ steps.env.outputs.PRODUCTION_BUILD_VERSION }}
-          docker pull ${{ vars.DOCKERHUB_USERNAME}}/tweb:${version}
+        env:
+          VERSION: ${{ steps.env.outputs.PRODUCTION_BUILD_VERSION }}
+        run: docker pull "$DOCKERHUB_USERNAME/tweb:$VERSION"
 
       - name: Pull latest image
-        run: docker pull ${{ vars.DOCKERHUB_USERNAME}}/tweb:latest
+        run: docker pull "$DOCKERHUB_USERNAME/tweb:latest"
